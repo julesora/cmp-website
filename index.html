@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Check, explore and convert Chess Mnemonic Protocol sequences." />
+  <title>CMP — Chess Mnemonic Protocol</title>
+</head>
+<body>
+  <a class="skip" href="#mnemonic">Skip to editor</a>
+  <div class="page">
+    <header>
+      <div><h1>CMP<span class="cursor">_</span></h1><p>Chess Mnemonic Protocol</p></div>
+      <nav aria-label="Main"><a href="#workbench">Workbench</a><a href="#reference">Reference</a><a href="https://github.com/julesora/cmp">Source ↗</a></nav>
+    </header>
+    <main>
+      <div class="intro"><p>A small text format. A sequence of legal moves.</p><span id="version">cmp1 / connecting</span></div>
+      <section id="workbench" class="workbench" aria-label="CMP workbench">
+        <div class="editor-column">
+          <section class="panel">
+            <h2><span>01</span> Mnemonic</h2>
+            <label for="mnemonic">CMP sequence</label>
+            <textarea id="mnemonic" spellcheck="false" maxlength="4096" rows="5">cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
+            <div class="actions"><button id="check" class="primary">Check sequence</button><button id="normalize" disabled>Normalize</button><button id="clear">Clear</button></div>
+            <p id="status" role="status" aria-live="polite">Connecting to CMP…</p>
+            <div class="examples"><label for="example">Load example</label><select id="example"><option value="opening">Ruy López / opening</option><option value="castling">Castling</option><option value="en-passant">En passant</option><option value="promotion">Promotion</option><option value="restart">Checkmate → new game</option><option value="invalid">Invalid move</option></select><button id="load">Load</button></div>
+          </section>
+          <section class="panel output-panel">
+            <h2><span>02</span> Notation</h2>
+            <div class="output-head"><div class="tabs" role="tablist" aria-label="Output format"><button id="tab-uci" role="tab" aria-selected="false" aria-controls="output" data-format="uci" tabindex="-1">UCI</button><button id="tab-san" role="tab" aria-selected="true" aria-controls="output" data-format="san">SAN</button><button id="tab-pgn" role="tab" aria-selected="false" aria-controls="output" data-format="pgn" tabindex="-1">PGN</button></div><span id="move-count">0 moves</span></div>
+            <pre id="output" role="tabpanel" aria-labelledby="tab-san" tabindex="0"></pre>
+            <div class="actions"><button id="copy" disabled>Copy</button><button id="download" disabled>Download</button><span id="copy-status" role="status"></span></div>
+          </section>
+        </div>
+        <section class="panel board-panel">
+          <div class="board-title"><h2><span>03</span> Visualiser</h2><button id="flip">Flip board</button></div>
+          <div id="board" aria-label="Chessboard"></div>
+          <div class="playback"><button id="first" aria-label="First position">|‹</button><button id="previous" aria-label="Previous move">‹</button><button id="play" aria-label="Play moves">Play</button><button id="next" aria-label="Next move">›</button><button id="last" aria-label="Last position">›|</button><output id="position">0 / 0</output></div>
+          <input id="scrubber" type="range" min="0" max="0" value="0" aria-label="Move position" />
+          <div class="position-meta"><span id="turn">White to move</span><span id="game">Game 1</span></div>
+          <div id="moves" aria-label="Move history"></div>
+          <details><summary>Legal moves <span id="legal-count"></span></summary><p class="hint">Select a move to add it at this position. Later moves are replaced.</p><div id="legal"></div></details>
+          <p class="hint">Move pieces by click or drag, or use the legal move buttons.</p>
+        </section>
+      </section>
+      <section id="reference" class="reference">
+        <h2>Format notes</h2>
+        <div class="notes"><div><h3>01 / Write</h3><p>Start with <code>cmp1</code>, then legal UCI moves. Lowercase. One space between moves.</p><code>cmp1 e2e4 e7e5</code></div><div><h3>02 / Move</h3><p>Use source and destination squares. Add a piece letter for promotion. Castling uses the king move.</p><code>e2e4 · e7e8q · e1g1</code></div><div><h3>03 / Continue</h3><p>After checkmate or stalemate, the next move starts a new game. PGN separates the games.</p><a href="https://github.com/julesora/cmp/blob/main/spec/cmp-0001.md">Read CMP 1 specification ↗</a></div></div>
+      </section>
+    </main>
+    <footer><span>CMP workbench / <a href="https://github.com/julesora/cmp">cmp</a> + <a href="https://github.com/shaack/cm-chessboard">cm-chessboard</a></span><span>Processed by your server. No saved history.</span></footer>
+  </div>
+  <dialog id="promotion"><form method="dialog"><h2>Promote pawn</h2><p>Choose a piece.</p><div class="actions"><button value="q">Queen</button><button value="r">Rook</button><button value="b">Bishop</button><button value="n">Knight</button><button value="">Cancel</button></div></form></dialog>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
