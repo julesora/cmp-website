@@ -80,7 +80,7 @@ def test_generation_restarts_after_mate(monkeypatch):
         assert move in legal
         return move
 
-    monkeypatch.setattr('server.app.choice', choose)
+    monkeypatch.setattr('server.workbench.choice', choose)
     data = client.post('/api/generate', json={'moves': 5}).json()
     assert data['frames'][4]['result'] == '0-1'
     assert data['frames'][5]['game'] == 2
