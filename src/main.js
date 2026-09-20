@@ -3,6 +3,7 @@ import { Markers, MARKER_TYPE } from 'cm-chessboard/src/extensions/markers/Marke
 import pieces from 'cm-chessboard/assets/pieces/standard.svg?url';
 import markerSprite from 'cm-chessboard/assets/extensions/markers/markers.svg?url&no-inline';
 import './style.css';
+import { browserMode, run } from './client.js';
 
 const $ = (id) => document.getElementById(id);
 const examples = {
@@ -115,16 +116,11 @@ function navigate(index) {
 async function inspect(text = $('mnemonic').value, atEnd = true, randomMoves = null) {
   invalidate();
   const id = request;
-  status(randomMoves === null ? 'Checking…' : 'Generating…');
+  status(randomMoves === null ? (browserMode && !data ? 'Loading CMP…' : 'Checking…') : 'Generating…');
   $('mnemonic').removeAttribute('aria-invalid');
   try {
-    const response = await fetch(randomMoves === null ? '/api/inspect' : '/api/generate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(randomMoves === null ? { mnemonic: text } : { moves: randomMoves }),
-    });
-    const result = await response.json();
+    const result = await run(randomMoves === null ? { mnemonic: text } : { moves: randomMoves });
     if (id !== request) return;
-    if (!response.ok) throw new Error(typeof result.detail === 'string' ? result.detail : 'Invalid input. Use at most 256 moves and 4096 characters.');
     if (randomMoves !== null) $('mnemonic').value = result.normalized;
     data = result;
     ready = true;
@@ -220,4 +216,5 @@ $('download').onclick = () => {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
+$('privacy').textContent = browserMode ? 'Runs in your browser. No saved history.' : 'Processed by your server. No saved history.';
 inspect(undefined, false);

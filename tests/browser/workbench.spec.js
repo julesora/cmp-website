@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.locator('#status')).toContainText('Valid sequence');
 });
 
@@ -67,6 +67,7 @@ test('board clicks add a legal move', async ({ page }) => {
 });
 
 test('handles server failure', async ({ page }) => {
+  test.skip(Boolean(process.env.CMP_PAGES), 'Server transport only.');
   await page.route('**/api/inspect', (route) => route.abort());
   await page.locator('#check').click();
   await expect(page.locator('#status')).toContainText('Cannot reach CMP');
@@ -120,6 +121,7 @@ test('generates a sequence for playback and export', async ({ page }) => {
 });
 
 test('does not overwrite edits with a late generated response', async ({ page }) => {
+  test.skip(Boolean(process.env.CMP_PAGES), 'Server transport only.');
   let release;
   const gate = new Promise(resolve => { release = resolve; });
   await page.route('**/api/generate', async route => {

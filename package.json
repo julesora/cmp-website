@@ -7,11 +7,15 @@
     "build": "vite build",
     "test": "playwright test",
     "test:api": ".venv/bin/python -m pytest -q",
-    "start": ".venv/bin/uvicorn server.app:app --host 127.0.0.1 --port 8000"
+    "start": ".venv/bin/uvicorn server.app:app --host 127.0.0.1 --port 8000",
+    "build:pages": ".venv/bin/python scripts/browser.py && VITE_CMP_RUNTIME=browser VITE_BASE=/cmp-website/ vite build",
+    "test:pages": "playwright test --config playwright.pages.config.js",
+    "preview:pages": "VITE_BASE=/cmp-website/ vite preview"
   },
   "type": "module",
   "dependencies": {
-    "cm-chessboard": "^8.14.0"
+    "cm-chessboard": "^8.14.0",
+    "pyodide": "314.0.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
