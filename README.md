@@ -6,6 +6,8 @@ Generate, check and replay legal moves. Export UCI, SAN or PGN.
 
 Website: https://julesora.github.io/cmp-website/
 
+![CMP workbench with move editor, notation and chessboard](docs/preview.png)
+
 Setup
 -----
 
