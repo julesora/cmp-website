@@ -3,7 +3,7 @@ import '../browser/workbench.spec.js';
 
 test('runs locally after loading', async ({ page, context }) => {
   const apiCalls = [];
-  page.on('request', request => {
+  page.on('request', (request) => {
     if (request.url().includes('/api/')) apiCalls.push(request.url());
   });
   await page.goto('./');
@@ -20,7 +20,7 @@ test('runs locally after loading', async ({ page, context }) => {
 });
 
 test('reports a runtime download failure', async ({ page }) => {
-  await page.route('**/runtime/pyodide.mjs', route => route.abort());
+  await page.route('**/runtime/pyodide.mjs', (route) => route.abort());
   await page.goto('./');
   await expect(page.locator('#status')).toContainText('Cannot load CMP');
   await expect(page.locator('#download')).toBeDisabled();

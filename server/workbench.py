@@ -7,17 +7,26 @@ import chess_engine as chess
 def position(state, game, move="", san=""):
     ranks = []
     for rank in range(7, -1, -1):
-        row, empty = "", 0
+        row = ""
+        empty = 0
         for piece in state["board"][rank * 8:rank * 8 + 8]:
             if piece is None:
                 empty += 1
             else:
-                row += (str(empty) if empty else "") + piece
+                if empty:
+                    row += str(empty)
+                row += piece
                 empty = 0
-        ranks.append(row + (str(empty) if empty else ""))
+        if empty:
+            row += str(empty)
+        ranks.append(row)
     return {
-        "fen": "/".join(ranks), "turn": state["turn"], "game": game,
-        "move": move, "san": san, "legal": chess.legal_moves(state),
+        "fen": "/".join(ranks),
+        "turn": state["turn"],
+        "game": game,
+        "move": move,
+        "san": san,
+        "legal": chess.legal_moves(state),
         "result": chess.result(state),
     }
 
@@ -29,9 +38,14 @@ def inspect(mnemonic):
     state = chess.initial_state()
     frames = [position(state, 1)]
     if not text:
-        return {"valid": False, "normalized": "", "moves": [],
-                "frames": frames, "outputs": {"uci": "", "san": "", "pgn": ""},
-                "version": cmp.__version__}
+        return {
+            "valid": False,
+            "normalized": "",
+            "moves": [],
+            "frames": frames,
+            "outputs": {"uci": "", "san": "", "pgn": ""},
+            "version": cmp.__version__,
+        }
     if len(text.split()) > 257:
         raise ValueError("Use at most 256 moves.")
     moves = cmp.parse_mnemonic(text)
@@ -43,10 +57,17 @@ def inspect(mnemonic):
         san = chess.san(state, move)
         state = chess.play(state, move)
         frames.append(position(state, game, move, san))
+    outputs = {}
+    for format in ("uci", "san", "pgn"):
+        outputs[format] = cmp.convert_mnemonic(text, format)
+
     return {
-        "valid": True, "normalized": cmp.normalize(text), "moves": moves,
-        "frames": frames, "version": cmp.__version__,
-        "outputs": {fmt: cmp.convert_mnemonic(text, fmt) for fmt in ("uci", "san", "pgn")},
+        "valid": True,
+        "normalized": cmp.normalize(text),
+        "moves": moves,
+        "frames": frames,
+        "version": cmp.__version__,
+        "outputs": outputs,
     }
 
 
@@ -64,4 +85,3 @@ def generate(count=24):
         moves.append(move)
         state = chess.play(state, move)
     return inspect("cmp1 " + " ".join(moves))
-
