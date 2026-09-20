@@ -55,3 +55,32 @@ def test_restart_after_checkmate():
 def test_input_limits():
     assert inspect('x' * 4097).status_code == 422
     assert inspect('cmp1 ' + 'e2e4 ' * 257).status_code == 422
+
+
+@pytest.mark.parametrize('count', [1, 24, 256])
+def test_random_generation(count):
+    response = client.post('/api/generate', json={'moves': count})
+    assert response.status_code == 200
+    data = response.json()
+    assert data['valid']
+    assert len(data['moves']) == count
+    assert inspect(data['normalized']).json() == data
+
+
+@pytest.mark.parametrize('count', [0, -1, 257, 1.5, True, '24'])
+def test_generation_limits(count):
+    assert client.post('/api/generate', json={'moves': count}).status_code == 422
+
+
+def test_generation_restarts_after_mate(monkeypatch):
+    moves = iter(['f2f3', 'e7e5', 'g2g4', 'd8h4', 'e2e4'])
+
+    def choose(legal):
+        move = next(moves)
+        assert move in legal
+        return move
+
+    monkeypatch.setattr('server.app.choice', choose)
+    data = client.post('/api/generate', json={'moves': 5}).json()
+    assert data['frames'][4]['result'] == '0-1'
+    assert data['frames'][5]['game'] == 2

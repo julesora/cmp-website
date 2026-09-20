@@ -107,3 +107,31 @@ test('adds a new game after mate', async ({ page }) => {
   await page.locator('#legal').getByRole('button', { name: 'e2e4', exact: true }).click();
   await expect(page.locator('#game')).toHaveText('Game 2');
 });
+
+test('generates a sequence for playback and export', async ({ page }) => {
+  await page.locator('#random-count').fill('12');
+  await page.getByRole('button', { name: 'Generate random' }).click();
+  await expect(page.locator('#status')).toContainText('12 legal moves');
+  await expect(page.locator('#position')).toHaveText('0 / 12');
+  expect((await page.locator('#mnemonic').inputValue()).split(' ')).toHaveLength(13);
+  await page.locator('#last').click();
+  await expect(page.locator('#position')).toHaveText('12 / 12');
+  await expect(page.locator('#download')).toBeEnabled();
+});
+
+test('does not overwrite edits with a late generated response', async ({ page }) => {
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('**/api/generate', async route => {
+    const response = await route.fetch();
+    await gate;
+    await route.fulfill({ response });
+  });
+  await page.getByRole('button', { name: 'Generate random' }).click();
+  await expect(page.locator('#status')).toHaveText('Generating…');
+  await page.locator('#mnemonic').fill('cmp1 d2d4');
+  release();
+  await page.waitForResponse('**/api/generate');
+  await expect(page.locator('#mnemonic')).toHaveValue('cmp1 d2d4');
+  await expect(page.locator('#status')).toContainText('Edited.');
+});

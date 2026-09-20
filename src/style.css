@@ -73,3 +73,6 @@ dialog { max-width: calc(100% - 32px); border: 1px solid var(--green); backgroun
 dialog::backdrop { background: #25292366; }
 @media (max-width: 780px) { .page { padding: 22px 18px; } .workbench { grid-template-columns: 1fr; } .intro { align-items: start; flex-direction: column; gap: 4px; } .notes { grid-template-columns: 1fr; gap: 22px; } nav { gap: 12px; font-size: 12px; } header { align-items: start; gap: 20px; } header p { font-size: 11px; } h1 { font-size: 36px; } .panel { padding: 18px; } footer { flex-direction: column; gap: 5px; } }
 @media (max-width: 400px) { nav { flex-direction: column; gap: 4px; } }
+
+#generator label { width: 100%; margin: 0; }
+#random-count { width: 80px; font: inherit; padding: 5px 8px; border: 1px solid #9b9f91; border-radius: 0; background: #fafaf5; }

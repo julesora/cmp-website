@@ -21,7 +21,7 @@ For development, also run `npm run dev` and open its URL.
 Use
 ---
 
-Paste a cmp1 sequence and choose Check. Step through moves, add legal
+Generate 1–256 random legal moves, or paste a cmp1 sequence and choose Check. Step through moves, add legal
 moves, normalize text, or copy/download UCI, SAN and PGN. Editing at an
 earlier move replaces the following moves. Sequences are limited to 256 moves.
 

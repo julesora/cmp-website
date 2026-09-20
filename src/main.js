@@ -112,19 +112,20 @@ function navigate(index) {
   renderPosition();
 }
 
-async function inspect(text = $('mnemonic').value, atEnd = true) {
+async function inspect(text = $('mnemonic').value, atEnd = true, randomMoves = null) {
   invalidate();
   const id = request;
-  status('Checking…');
+  status(randomMoves === null ? 'Checking…' : 'Generating…');
   $('mnemonic').removeAttribute('aria-invalid');
   try {
-    const response = await fetch('/api/inspect', {
+    const response = await fetch(randomMoves === null ? '/api/inspect' : '/api/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mnemonic: text }),
+      body: JSON.stringify(randomMoves === null ? { mnemonic: text } : { moves: randomMoves }),
     });
     const result = await response.json();
     if (id !== request) return;
     if (!response.ok) throw new Error(typeof result.detail === 'string' ? result.detail : 'Invalid input. Use at most 256 moves and 4096 characters.');
+    if (randomMoves !== null) $('mnemonic').value = result.normalized;
     data = result;
     ready = true;
     cursor = atEnd ? data.moves.length : 0;
@@ -168,6 +169,10 @@ function input(event) {
   return false;
 }
 
+$('generator').onsubmit = (event) => {
+  event.preventDefault();
+  inspect('', false, Number($('random-count').value));
+};
 $('check').onclick = () => inspect();
 $('mnemonic').addEventListener('input', () => { invalidate(); status('Edited. Check sequence to update.'); $('mnemonic').removeAttribute('aria-invalid'); });
 $('mnemonic').addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') inspect(); });
