@@ -98,10 +98,14 @@ Credits
 * [FastAPI][fastapi] serves the local API. MIT license.
 * [Vite][vite] builds and serves the frontend. MIT license.
 
-The letter pieces in src/pieces.svg are drawn for this project.
+The [standard chess pieces][pieces] are by Cburnett and Rfc1394, adapted
+by Stefan Haack for cm-chessboard. They use the CC BY-SA 3.0 license.
+The original attribution and license are included in the SVG file.
 
 [cmp]: https://github.com/julesora/cmp
 [board]: https://github.com/shaack/cm-chessboard
 [pyodide]: https://github.com/pyodide/pyodide
 [fastapi]: https://github.com/fastapi/fastapi
 [vite]: https://github.com/vitejs/vite
+
+[pieces]: https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces/Standard

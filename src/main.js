@@ -7,7 +7,7 @@ import {
   Markers,
   MARKER_TYPE,
 } from 'cm-chessboard/src/extensions/markers/Markers.js';
-import pieces from './pieces.svg?url&no-inline';
+import pieces from 'cm-chessboard/assets/pieces/standard.svg?url';
 import markerSprite from 'cm-chessboard/assets/extensions/markers/markers.svg?url&no-inline';
 import './style.css';
 import { browserMode, run } from './client.js';
