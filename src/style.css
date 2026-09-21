@@ -218,32 +218,13 @@ button.primary:hover:not(:disabled),
 #status.error {
   color: #923d2d;
 }
-.tools {
-  display: grid;
-  gap: 12px;
-  padding: 16px 0;
-  border-top: 1px solid var(--line);
-}
-#generator,
-.examples {
+#generator {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.tools label {
-  flex: 0 0 56px;
-  margin: 0;
-}
-.tools button,
-.tools select {
-  font-size: 12px;
-}
 #random-count {
   width: 68px;
-}
-.examples select {
-  min-width: 0;
-  flex: 1;
 }
 .output-head {
   justify-content: space-between;
@@ -383,11 +364,6 @@ kbd {
 #generate {
   flex: 1;
 }
-.tools {
-  padding: 12px 0 0;
-  margin-top: 12px;
-  border: 0;
-}
 .move-row,
 .move-columns {
   display: grid;
@@ -439,7 +415,7 @@ kbd {
     margin-bottom: 6px;
   }
   #board {
-    max-width: 32svh;
+    max-width: 100%;
   }
   button {
     min-height: 44px;
@@ -468,8 +444,7 @@ kbd {
   .history {
     padding: 12px;
   }
-  #random-count,
-  .tools select {
+  #random-count {
     font-size: 16px;
     min-height: 44px;
   }
@@ -483,10 +458,7 @@ kbd {
   }
 }
 @media (max-width: 360px) {
-  .tools label {
-    flex-basis: 48px;
-  }
-  .key-list {
+    .key-list {
     grid-template-columns: 1fr;
     gap: 6px;
   }
@@ -554,4 +526,79 @@ kbd {
 }
 #sequence-count {
   font-weight: normal;
+}
+
+#sequence-dialog {
+  width: 620px;
+  padding: 20px;
+}
+#sequence-dialog > h2 {
+  margin-bottom: 16px;
+}
+#sequence-dialog #panel-sequence {
+  padding: 0;
+  border: 0;
+}
+#file-row {
+  margin-bottom: 16px;
+}
+#import-file {
+  width: 100%;
+  min-width: 0;
+}
+#draft-status {
+  font-size: 12px;
+  min-height: 20px;
+}
+.error {
+  color: #923d2d;
+}
+.playback-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.playback-options label {
+  margin: 0 0 0 auto;
+}
+.collection-entry {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+}
+.collection-entry input {
+  width: 100%;
+}
+.collection-entry p {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+#examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+#sequences {
+  margin-top: 16px;
+}
+#board {
+  scroll-margin-top: 80px;
+}
+@media (max-width: 780px) {
+  #sequence-dialog {
+    padding: 16px;
+  }
+  dialog textarea,
+  dialog input,
+  dialog select {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 781px) {
+  .board-column {
+    position: sticky;
+    top: 64px;
+  }
 }

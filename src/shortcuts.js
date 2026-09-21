@@ -9,7 +9,7 @@ const navigation = {
 };
 
 const labels = {
-  check: ['Control+Enter Meta+Enter', 'Check sequence (Ctrl/⌘ + Enter)'],
+  apply: ['Control+Enter Meta+Enter', 'Apply sequence (Ctrl/⌘ + Enter)'],
   first: ['Home', 'First position (Home)'],
   previous: ['ArrowLeft', 'Previous move (←)'],
   play: ['Space', 'Play / pause (Space)'],
@@ -43,15 +43,22 @@ export function bindShortcuts() {
 
   document.addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.isComposing) return;
-    if (document.querySelector('dialog[open]')) return;
+    const editing = !control('panel-sequence').hidden;
+    const dialog = document.querySelector('dialog[open]');
+    if (event.key === 'Escape' && editing && !dialog) {
+      event.preventDefault();
+      control('cancel').click();
+      return;
+    }
+    if (dialog && dialog.id !== 'sequence-dialog') return;
 
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       if (event.altKey || event.repeat) return;
       event.preventDefault();
-      control('check').click();
+      if (editing) control('apply').click();
       return;
     }
-    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (dialog || event.ctrlKey || event.metaKey || event.altKey) return;
     if (
       event.target.closest(
         'input, textarea, select, button, a, summary, [contenteditable], [role="tab"]',
@@ -66,7 +73,8 @@ export function bindShortcuts() {
       if (event.key === '?') action = 'show-shortcuts';
       if (event.key === '/') {
         event.preventDefault();
-        control('mnemonic').focus();
+        if (!editing) control('edit').click();
+        else control('mnemonic').focus();
         return;
       }
     }

@@ -2,21 +2,28 @@ CMP Website
 ===========
 
 A web interface for Chess Mnemonic Protocol (CMP).
-Generate, check and replay legal moves. Export UCI, SAN or PGN.
+Generate, check and replay legal moves. Export CMP, UCI, SAN or PGN.
 
 Website: https://julesora.github.io/cmp-website/
 
-![CMP workbench with move editor, notation and chessboard](docs/preview.png)
+![CMP board and move history](docs/preview.png)
 
 [Phone preview](docs/mobile.png)
 
 Layout
 ------
 
-The board and moves are the main view. Generate or edit a sequence beside
-the board, or below it on phones. Import loads CMP or UCI text; Export copies or downloads it.
-New clears the board. Edit focuses the editor. List reopens generated
-sequences, kept until the page reloads or closes.
+The main view contains the board, moves and playback controls.
+
+* New: generate or build a sequence, then Create.
+* Import: paste text or choose a CMP/UCI file. Check, normalize, then Import.
+* Edit: change text or play moves. Apply keeps changes; Cancel restores them.
+* Export: copy or download CMP, UCI, SAN or PGN.
+* List: saved sequences and examples. Rename, duplicate or remove entries.
+
+Legal moves appear only in New and Edit. Undo restores the previous sequence.
+New and imported sequences are saved locally. Use Save current to keep edits.
+The collection survives reloads. Clear collection removes it from this browser.
 
 Setup
 -----
@@ -39,7 +46,7 @@ Open the preview URL with /cmp-website/ at the end.
 
 This version runs CMP in your browser. The first load downloads Python
 (about 13 MB). Processing works offline while the page stays open.
-Nothing is stored after the page closes.
+The collection is stored in this browser. Export a copy to keep elsewhere.
 
 Server
 ------
@@ -82,10 +89,10 @@ Outside fields and controls:
 * Home / End: first / last position
 * Space: play / pause
 * F: flip board
-* /: focus sequence
+* /: edit sequence
 * ?: show shortcuts
 
-Ctrl+Enter (Cmd+Enter on macOS) checks the sequence.
+Ctrl+Enter (Cmd+Enter on macOS) applies the draft. Escape cancels it.
 The Keys dialog can disable F, / and ? shortcuts.
 
 Files
@@ -95,6 +102,7 @@ Files
 * server/app.py: HTTP API
 * src/main.js: interface and board controls
 * src/client.js: server and browser requests
+* src/collection.js: saved sequences
 * src/shortcuts.js: keyboard controls
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files
