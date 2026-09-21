@@ -705,3 +705,55 @@ summary {
     display: block;
   }
 }
+
+.viewer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+}
+.viewer-heading #viewer-title {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.action-icon {
+  display: none;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (max-width: 780px) {
+  .viewer-heading {
+    gap: 8px;
+    padding: 12px;
+  }
+  #mobile-toolbar {
+    position: static;
+    padding: 0;
+    background: transparent;
+    flex-shrink: 0;
+  }
+  #collection-actions {
+    grid-template-columns: repeat(4, 40px);
+    gap: 4px;
+  }
+  #collection-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0;
+  }
+  #collection-actions .action-icon {
+    display: block;
+  }
+  #collection-actions .action-label {
+    display: none;
+  }
+}

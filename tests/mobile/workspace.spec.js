@@ -8,7 +8,10 @@ test.beforeEach(async ({ page }) => {
 
 test('shows a mobile action bar and opens the list with Switch', async ({ page }) => {
   await expect(page.locator('#collection')).not.toBeVisible();
-  await expect(page.locator('#mobile-toolbar button')).toHaveText(['New', 'Import', 'Export', 'Switch']);
+  for (const name of ['New', 'Import', 'Export', 'Switch']) {
+    await expect(page.locator('.viewer-heading').getByRole('button', { name, exact: true })).toBeVisible();
+  }
+  await expect(page.locator('#mobile-toolbar .action-label').first()).not.toBeVisible();
   await page.locator('#switch').tap();
   await expect(page.locator('#collection')).toBeVisible();
   await page.locator('#switch-dialog').getByRole('button', { name: 'Close', exact: true }).tap();

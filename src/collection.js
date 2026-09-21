@@ -68,7 +68,6 @@ export function bindCollection(actions) {
   }
 
   function renderExportLabel() {
-    $('export-collection').textContent = 'Export';
     $('export-collection').disabled = locked || !entries.length;
   }
 

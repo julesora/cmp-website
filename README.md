@@ -14,7 +14,7 @@ Layout
 ------
 
 The collection stays beside the board on desktop. On phones, New, Import,
-Export and Switch sit above the board; Switch opens the sequence list.
+Export and Switch are icons beside the sequence name; Switch opens the list.
 Moves sit below the board. Selecting a sequence opens it for viewing.
 
 New visitors start with Ruy López, Queen’s Gambit and Sicilian sequences.
