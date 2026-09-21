@@ -40,7 +40,9 @@
             <output id="position">0 / 0</output>
           </div>
           <p id="status" role="status" aria-live="polite">Connecting to CMP…</p>
-          <div id="mobile-tabs" role="tablist" aria-label="Workspace" hidden>
+        </section>
+        <section class="tools-column" aria-label="Workspace tools">
+          <div id="workspace-tabs" role="tablist" aria-label="Workspace">
             <button
               id="view-moves"
               role="tab"
@@ -74,8 +76,21 @@
               Export
             </button>
           </div>
-        </section>
-        <section class="editor-column" aria-label="Sequence and notation">
+          <section
+            id="panel-moves"
+            data-panel="moves"
+            class="history"
+            aria-labelledby="history-title"
+          >
+            <div class="history-title">
+              <h2 id="history-title">Moves</h2>
+              <span id="move-count">0 moves</span>
+            </div>
+            <div class="move-columns" aria-hidden="true">
+              <span></span><span>White</span><span>Black</span>
+            </div>
+            <div id="moves" aria-label="Move history"></div>
+          </section>
           <section
             id="panel-sequence"
             data-panel="sequence"
@@ -183,18 +198,6 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
             <h2>Legal moves <span id="legal-count"></span></h2>
             <div id="legal" aria-label="Legal moves"></div>
           </div>
-        </section>
-        <section
-          id="panel-moves"
-          data-panel="moves"
-          class="history"
-          aria-labelledby="history-title"
-        >
-          <div class="history-title">
-            <h2 id="history-title">Moves</h2>
-            <span id="move-count">0 moves</span>
-          </div>
-          <div id="moves" aria-label="Move history"></div>
         </section>
       </main>
       <footer>

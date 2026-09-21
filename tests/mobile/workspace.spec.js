@@ -12,7 +12,7 @@ test('switches tools while keeping the position visible', async ({ page }) => {
     await expect(page.locator('[data-panel]:visible')).toHaveCount(1);
     await expect(page.locator('#board')).toBeInViewport({ ratio: 1 });
     await expect(page.locator('#next')).toBeInViewport({ ratio: 1 });
-    await expect(page.locator('#mobile-tabs')).toBeInViewport({ ratio: 1 });
+    await expect(page.locator('#workspace-tabs')).toBeInViewport({ ratio: 1 });
   }
   await page.getByRole('tab', { name: 'PGN', exact: true }).tap();
   await expect(page.locator('#output')).toContainText('[Event "CMP-1"]');
@@ -48,7 +48,7 @@ test('keeps navigation available through a long move list', async ({
   await page.locator('#view-moves').tap();
   await page.locator('#moves button').last().scrollIntoViewIfNeeded();
   await expect(page.locator('#board')).toBeInViewport({ ratio: 1 });
-  await expect(page.locator('#mobile-tabs')).toBeInViewport({ ratio: 1 });
+  await expect(page.locator('#workspace-tabs')).toBeInViewport({ ratio: 1 });
   await page.locator('#moves button').nth(62).tap();
   await expect(page.locator('#position')).toHaveText('63 / 64');
   await expect(page.locator('#board')).toBeInViewport({ ratio: 1 });
@@ -70,7 +70,7 @@ test('fits a small phone and supports tab keys', async ({ page }) => {
   await expect(page.locator('#panel-legal')).toBeVisible();
   await page.keyboard.press('End');
   await expect(page.locator('#panel-export')).toBeVisible();
-  await expect(page.locator('#mobile-tabs')).toBeInViewport({ ratio: 1 });
+  await expect(page.locator('#workspace-tabs')).toBeInViewport({ ratio: 1 });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

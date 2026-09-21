@@ -102,17 +102,19 @@ nav {
 }
 .workbench {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: start;
   border: 1px solid #9b9f91;
   background: #fbfbf6;
 }
 .board-column,
-.editor-column {
+.tools-column {
   min-width: 0;
   padding: 20px;
 }
 .board-column {
-  border-right: 1px solid var(--line);
+  position: sticky;
+  top: 0;
 }
 .board-title {
   justify-content: space-between;
@@ -135,6 +137,8 @@ nav {
   font-size: 12px;
 }
 #board {
+  max-width: min(100%, calc(100svh - 170px));
+  margin: 0 auto;
   width: 100%;
   aspect-ratio: 1;
 }
@@ -299,11 +303,10 @@ pre {
   margin-bottom: 10px;
 }
 #moves {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
-  gap: 6px;
+  display: block;
 }
 #moves button {
+  min-height: 44px;
   font-size: 12px;
   padding: 5px 8px;
   text-align: left;
@@ -365,42 +368,66 @@ kbd {
   font-size: 11px;
   margin-bottom: 0;
 }
-@media (max-width: 360px) {
-  .page {
-    padding: 10px;
-  }
-  .board-column,
-  .editor-column,
-  .history {
-    padding: 12px;
-  }
-  .tools label {
-    flex-basis: 48px;
-  }
-  .key-list {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-  .key-list dd {
-    margin-bottom: 8px;
-  }
-}
 
 [hidden] {
   display: none !important;
 }
-
+.tools-column {
+  padding: 0;
+  border-left: 1px solid var(--line);
+  min-height: 100%;
+}
+#workspace-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  gap: 5px;
+  padding: 12px;
+  background: #fbfbf6;
+  border-bottom: 1px solid var(--line);
+}
+#workspace-tabs button {
+  min-height: 44px;
+  font-size: 12px;
+  padding: 5px 3px;
+}
+#workspace-tabs [aria-selected='true'] {
+  background: var(--green);
+  color: white;
+}
+[data-panel] {
+  padding: 18px;
+  margin: 0;
+  border: 0;
+}
+.tools {
+  margin-top: 16px;
+}
+.move-row,
+.move-columns {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr;
+  gap: 6px;
+  align-items: center;
+}
+.move-row {
+  margin-top: 6px;
+}
+.move-number,
+.move-columns {
+  color: #636b5d;
+  font-size: 12px;
+}
+.move-columns {
+  margin-bottom: 10px;
+}
+.game-label {
+  font-size: 12px;
+  margin: 16px 0 8px;
+}
 @media (max-width: 780px) {
-  .brand > span {
-    display: none;
-  }
-  nav {
-    gap: 14px;
-  }
-  footer {
-    flex-direction: column;
-    gap: 4px;
-  }
   .page {
     padding: 10px;
   }
@@ -410,24 +437,26 @@ kbd {
   h1 {
     font-size: 30px;
   }
+  .brand > span {
+    display: none;
+  }
+  nav {
+    gap: 14px;
+  }
   .workbench {
     display: block;
   }
   .board-column {
-    position: sticky;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-    top: 0;
     z-index: 2;
     padding: 10px 12px 0;
     background: #fbfbf6;
+    border-bottom: 1px solid var(--line);
   }
   .board-title {
     margin-bottom: 6px;
   }
   #board {
     max-width: 38svh;
-    margin: 0 auto;
   }
   button {
     min-height: 44px;
@@ -447,31 +476,16 @@ kbd {
     font-size: 11px;
     min-height: 18px;
   }
-  #mobile-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-  }
-  #mobile-tabs button {
-    font-size: 12px;
-    padding: 5px 3px;
-  }
-  #mobile-tabs [aria-selected='true'] {
-    background: var(--green);
-    color: white;
-  }
-  .editor-column {
+  .tools-column {
     display: contents;
+    border: 0;
+  }
+  #workspace-tabs {
+    top: var(--board-height, 420px);
+    padding: 8px 12px;
   }
   [data-panel] {
     padding: 14px 12px;
-    margin: 0;
-    border: 0;
-  }
-  .tools {
-    margin-top: 16px;
   }
   #random-count,
   .tools select {
@@ -482,12 +496,28 @@ kbd {
     grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
   }
   footer {
+    flex-direction: column;
+    gap: 4px;
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
-
+@media (max-width: 360px) {
+  .tools label {
+    flex-basis: 48px;
+  }
+  .key-list {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .key-list dd {
+    margin-bottom: 8px;
+  }
+}
 @media (max-width: 780px) and (max-height: 500px) {
   .board-column {
     position: static;
+  }
+  #workspace-tabs {
+    top: 0;
   }
 }

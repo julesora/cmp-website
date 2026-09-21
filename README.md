@@ -10,6 +10,12 @@ Website: https://julesora.github.io/cmp-website/
 
 [Phone preview](docs/mobile.png)
 
+Layout
+------
+
+Moves, Legal, Sequence and Export are the same on every screen.
+The tools sit beside the board on wide screens and below it on phones.
+
 Setup
 -----
 
@@ -88,7 +94,7 @@ Files
 * src/main.js: interface and board controls
 * src/client.js: server and browser requests
 * src/shortcuts.js: keyboard controls
-* src/workspace.js: phone tabs
+* src/workspace.js: workspace tabs
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files
 * tests/: API and browser tests

@@ -117,14 +117,7 @@ function renderPosition() {
   $('first').disabled = $('previous').disabled = cursor === 0;
   $('next').disabled = $('last').disabled = cursor === data.moves.length;
   $('play').disabled = !data.moves.length;
-  $('moves').replaceChildren(
-    ...data.frames.slice(1).map((item, i) => {
-      const button = moveButton(`${i + 1}. ${item.san}`, () => navigate(i + 1));
-      button.setAttribute('aria-label', `Move ${i + 1}: ${item.san}`);
-      if (cursor === i + 1) button.setAttribute('aria-current', 'step');
-      return button;
-    }),
-  );
+  renderHistory();
   const legal = frame.result ? data.frames[0].legal : frame.legal;
   $('legal-count').textContent =
     `(${legal.length}${frame.result ? ', new game' : ''})`;
@@ -137,6 +130,43 @@ function renderPosition() {
   );
   board.disableMoveInput();
   if (!frame.result && !timer) board.enableMoveInput(input, frame.turn);
+}
+
+function renderHistory() {
+  const history = document.createDocumentFragment();
+  let game = 0;
+  let ply = 0;
+  let row;
+  const multipleGames = data.frames.at(-1).game > 1;
+
+  data.frames.slice(1).forEach((frame, index) => {
+    if (frame.game !== game) {
+      game = frame.game;
+      ply = 0;
+      if (multipleGames) {
+        const heading = document.createElement('h3');
+        heading.className = 'game-label';
+        heading.textContent = `Game ${game}`;
+        history.append(heading);
+      }
+    }
+    if (ply % 2 === 0) {
+      row = document.createElement('div');
+      row.className = 'move-row';
+      const number = document.createElement('span');
+      number.className = 'move-number';
+      number.textContent = `${Math.floor(ply / 2) + 1}.`;
+      row.append(number);
+      history.append(row);
+    }
+    const button = moveButton(frame.san, () => navigate(index + 1));
+    button.setAttribute('aria-label', `Move ${index + 1}: ${frame.san}`);
+    button.title = frame.move;
+    if (cursor === index + 1) button.setAttribute('aria-current', 'step');
+    row.append(button);
+    ply++;
+  });
+  $('moves').replaceChildren(history);
 }
 
 function navigate(index) {

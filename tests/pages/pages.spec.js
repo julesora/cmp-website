@@ -10,6 +10,7 @@ test('runs locally after loading', async ({ page, context }) => {
   await expect(page.locator('#status')).toContainText('Valid sequence');
   await expect(page.locator('#privacy')).toContainText('Runs in your browser');
   await context.setOffline(true);
+  await page.locator('#view-sequence').click();
   await page.locator('#random-count').fill('24');
   await page.locator('#generate').click();
   await expect(page.locator('#status')).toContainText('24 legal moves');
@@ -25,6 +26,7 @@ test('reports a runtime download failure', async ({ page }) => {
   await expect(page.locator('#status')).toContainText('Cannot load CMP');
   await expect(page.locator('#download')).toBeDisabled();
   await page.unroute('**/runtime/pyodide.mjs');
+  await page.locator('#view-sequence').click();
   await page.locator('#check').click();
   await expect(page.locator('#status')).toContainText('Valid sequence');
 });

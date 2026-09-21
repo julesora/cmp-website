@@ -1,39 +1,23 @@
 export function bindWorkspace() {
-  const mobile = window.matchMedia('(max-width: 780px)');
-  const tabs = document.getElementById('mobile-tabs');
+  const workspace = document.getElementById('workbench');
+  const board = workspace.querySelector('.board-column');
+  const tabs = document.getElementById('workspace-tabs');
   const buttons = [...tabs.querySelectorAll('[data-view]')];
-  const panels = [...document.querySelectorAll('[data-panel]')];
-  let selected = 'moves';
+  const panels = [...workspace.querySelectorAll('[data-panel]')];
 
-  function render() {
-    tabs.hidden = !mobile.matches;
+  function show(view, scroll = true) {
     for (const button of buttons) {
-      const active = button.dataset.view === selected;
-      button.setAttribute('aria-selected', String(active));
-      button.tabIndex = active ? 0 : -1;
+      const selected = button.dataset.view === view;
+      button.setAttribute('aria-selected', String(selected));
+      button.tabIndex = selected ? 0 : -1;
     }
     for (const panel of panels) {
-      panel.hidden = mobile.matches && panel.dataset.panel !== selected;
-      if (mobile.matches) {
-        panel.setAttribute('role', 'tabpanel');
-        panel.setAttribute('aria-labelledby', `view-${panel.dataset.panel}`);
-      } else {
-        panel.removeAttribute('role');
-        if (panel.id === 'panel-moves') {
-          panel.setAttribute('aria-labelledby', 'history-title');
-        } else {
-          panel.removeAttribute('aria-labelledby');
-        }
-      }
+      panel.hidden = panel.dataset.panel !== view;
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', `view-${panel.dataset.panel}`);
     }
-  }
-
-  function show(view) {
-    selected = view;
-    render();
-    if (mobile.matches) {
-      const top = document.getElementById('workbench').offsetTop;
-      window.scrollTo({ top, behavior: 'instant' });
+    if (scroll && window.scrollY > workspace.offsetTop) {
+      window.scrollTo({ top: workspace.offsetTop, behavior: 'instant' });
     }
   }
 
@@ -53,14 +37,13 @@ export function bindWorkspace() {
     };
   }
 
+  const resize = new ResizeObserver(() => {
+    workspace.style.setProperty('--board-height', `${board.offsetHeight}px`);
+  });
+  resize.observe(board);
   document.addEventListener('show-sequence', () => show('sequence'));
   document
     .querySelector('.skip')
     .addEventListener('click', () => show('sequence'));
-  mobile.addEventListener('change', () => {
-    const activePanel = document.activeElement.closest('[data-panel]');
-    if (activePanel) selected = activePanel.dataset.panel;
-    render();
-  });
-  render();
+  show('moves', false);
 }
