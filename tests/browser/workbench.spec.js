@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#status')).toContainText('Valid sequence');
-  await page.locator('#view-sequence').click();
 });
 
 test('replays, normalizes and exports a sequence', async ({ page }) => {
@@ -20,7 +19,6 @@ test('replays, normalizes and exports a sequence', async ({ page }) => {
   await expect(page.locator('#status')).toContainText('Valid sequence');
   await page.locator('#normalize').click();
   await expect(page.locator('#mnemonic')).toHaveValue('cmp1 e2e4 e7e5');
-  await page.locator('#view-export').click();
   await page.getByRole('tab', { name: 'PGN' }).click();
   await expect(page.locator('#output')).toContainText('[Event "CMP-1"]');
   const download = page.waitForEvent('download');
@@ -39,7 +37,6 @@ test('rejects invalid moves and recovers', async ({ page }) => {
   await expect(page.locator('#output')).toBeEmpty();
   await page.locator('#clear').click();
   await expect(page.locator('#status')).toContainText('Empty board');
-  await page.locator('#view-legal').click();
   await page
     .locator('#legal')
     .getByRole('button', { name: 'e2e4', exact: true })
@@ -49,7 +46,6 @@ test('rejects invalid moves and recovers', async ({ page }) => {
 });
 
 test('branches from a prior position and plays', async ({ page }) => {
-  await page.locator('#view-legal').click();
   await page
     .locator('#legal')
     .getByRole('button', { name: 'd2d4', exact: true })
@@ -142,7 +138,6 @@ test('adds a new game after mate', async ({ page }) => {
   await page.locator('#mnemonic').fill('cmp1 f2f3 e7e5 g2g4 d8h4');
   await page.locator('#check').click();
   await expect(page.locator('#turn')).toContainText('Game ended: 0-1');
-  await page.locator('#view-legal').click();
   await page
     .locator('#legal')
     .getByRole('button', { name: 'e2e4', exact: true })
@@ -211,7 +206,6 @@ test('preserves native controls and offers shortcut settings', async ({
   await page.locator('#random-count').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#position')).toHaveText('0 / 5');
-  await page.locator('#view-export').click();
   await page.locator('#tab-san').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#tab-pgn')).toHaveAttribute(
@@ -280,12 +274,7 @@ test('shows long move lists without inner scrolling', async ({ page }) => {
   await page.locator('#check').click();
   await expect(page.locator('#status')).toContainText('64 legal moves');
   await expect(page.locator('#moves button')).toHaveCount(64);
-  for (const [view, id] of [
-    ['moves', 'moves'],
-    ['legal', 'legal'],
-    ['export', 'output'],
-  ]) {
-    await page.locator(`#view-${view}`).click();
+  for (const id of ['moves', 'legal', 'output']) {
     expect(
       await page.locator(`#${id}`).evaluate((element) => {
         return element.scrollHeight <= element.clientHeight;
@@ -294,50 +283,35 @@ test('shows long move lists without inner scrolling', async ({ page }) => {
   }
   await expect(page.locator('#legal')).toHaveCSS('display', 'grid');
   await expect(page.locator('input[type="range"]')).toHaveCount(0);
-  await page.locator('#view-moves').click();
   await page.getByRole('button', { name: 'Move 1: Nf3', exact: true }).click();
   await expect(page.locator('#position')).toHaveText('1 / 64');
   await expect(page.locator('#turn')).toHaveText('Black to move');
 });
 
-test('keeps the same tools and selection across screen sizes', async ({
-  page,
-}) => {
-  await page.locator('#view-legal').click();
+test('keeps all tools open across screen sizes', async ({ page }) => {
   for (const viewport of [
     { width: 390, height: 844 },
     { width: 1280, height: 900 },
   ]) {
     await page.setViewportSize(viewport);
-    await expect(page.locator('#view-legal')).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    await expect(page.locator('[data-panel]:visible')).toHaveCount(1);
-    await expect(page.locator('#panel-legal')).toBeVisible();
-    await expect(page.locator('#workspace-tabs [role="tab"]')).toHaveText([
-      'Moves',
-      'Legal',
-      'Sequence',
-      'Export',
-    ]);
+    for (const id of ['board', 'generator', 'mnemonic', 'legal', 'moves', 'output']) {
+      await expect(page.locator(`#${id}`)).toBeVisible();
+    }
+    await expect(page.getByRole('tablist', { name: 'Workspace', exact: true })).toHaveCount(0);
   }
 });
 
 test('pairs White and Black moves and resets numbering for new games', async ({
   page,
 }) => {
-  await page.locator('#view-moves').click();
   await expect(page.locator('.move-row')).toHaveCount(3);
   await expect(page.locator('.move-row').first().locator('button')).toHaveText([
     'e4',
     'e5',
   ]);
-  await page.locator('#view-sequence').click();
   await page.locator('#example').selectOption('restart');
   await page.locator('#load').click();
   await expect(page.locator('#status')).toContainText('Valid sequence');
-  await page.locator('#view-moves').click();
   await expect(page.locator('.game-label')).toHaveText(['Game 1', 'Game 2']);
   await expect(page.locator('.move-number')).toHaveText(['1.', '2.', '1.']);
 });

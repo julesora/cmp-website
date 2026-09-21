@@ -12,7 +12,6 @@ import markerSprite from 'cm-chessboard/assets/extensions/markers/markers.svg?ur
 import './style.css';
 import { browserMode, run } from './client.js';
 import { bindShortcuts } from './shortcuts.js';
-import { bindWorkspace } from './workspace.js';
 
 const $ = (id) => document.getElementById(id);
 const examples = {
@@ -345,6 +344,5 @@ $('download').onclick = () => {
 $('privacy').textContent = browserMode
   ? 'Runs in your browser. No saved history.'
   : 'Processed by your server. No saved history.';
-bindWorkspace();
 bindShortcuts();
 inspect(undefined, false);

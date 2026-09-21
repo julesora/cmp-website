@@ -13,8 +13,8 @@ Website: https://julesora.github.io/cmp-website/
 Layout
 ------
 
-Moves, Legal, Sequence and Export are the same on every screen.
-The tools sit beside the board on wide screens and below it on phones.
+The board, generator and UCI editor share one workspace.
+Legal moves, history and export stay open beside or below the board.
 
 Setup
 -----
@@ -94,7 +94,6 @@ Files
 * src/main.js: interface and board controls
 * src/client.js: server and browser requests
 * src/shortcuts.js: keyboard controls
-* src/workspace.js: workspace tabs
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files
 * tests/: API and browser tests

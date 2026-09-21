@@ -183,7 +183,7 @@ textarea {
   resize: vertical;
   display: block;
   width: 100%;
-  min-height: 110px;
+  min-height: 80px;
   padding: 12px;
   border: 1px solid #9b9f91;
   border-radius: 0;
@@ -377,33 +377,26 @@ kbd {
   border-left: 1px solid var(--line);
   min-height: 100%;
 }
-#workspace-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  gap: 5px;
-  padding: 12px;
-  background: #fbfbf6;
-  border-bottom: 1px solid var(--line);
-}
-#workspace-tabs button {
-  min-height: 44px;
-  font-size: 12px;
-  padding: 5px 3px;
-}
-#workspace-tabs [aria-selected='true'] {
-  background: var(--green);
-  color: white;
-}
-[data-panel] {
-  padding: 18px;
+#panel-sequence,
+.notation,
+.legal-section,
+.history {
+  padding: 16px;
   margin: 0;
-  border: 0;
+}
+#generator {
+  margin-bottom: 16px;
+}
+#generator label {
+  margin: 0;
+}
+#generate {
+  flex: 1;
 }
 .tools {
-  margin-top: 16px;
+  padding: 12px 0 0;
+  margin-top: 12px;
+  border: 0;
 }
 .move-row,
 .move-columns {
@@ -447,7 +440,7 @@ kbd {
     display: block;
   }
   .board-column {
-    z-index: 2;
+    position: static;
     padding: 10px 12px 0;
     background: #fbfbf6;
     border-bottom: 1px solid var(--line);
@@ -456,7 +449,7 @@ kbd {
     margin-bottom: 6px;
   }
   #board {
-    max-width: 38svh;
+    max-width: 32svh;
   }
   button {
     min-height: 44px;
@@ -477,15 +470,14 @@ kbd {
     min-height: 18px;
   }
   .tools-column {
-    display: contents;
+    display: block;
     border: 0;
   }
-  #workspace-tabs {
-    top: var(--board-height, 420px);
-    padding: 8px 12px;
-  }
-  [data-panel] {
-    padding: 14px 12px;
+  #panel-sequence,
+  .notation,
+  .legal-section,
+  .history {
+    padding: 12px;
   }
   #random-count,
   .tools select {
@@ -511,13 +503,5 @@ kbd {
   }
   .key-list dd {
     margin-bottom: 8px;
-  }
-}
-@media (max-width: 780px) and (max-height: 500px) {
-  .board-column {
-    position: static;
-  }
-  #workspace-tabs {
-    top: 0;
   }
 }
