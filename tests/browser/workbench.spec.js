@@ -37,7 +37,6 @@ test('rejects invalid moves and recovers', async ({ page }) => {
   await expect(page.locator('#output')).toBeEmpty();
   await page.locator('#clear').click();
   await expect(page.locator('#status')).toContainText('Empty board');
-  await page.locator('summary').click();
   await page
     .locator('#legal')
     .getByRole('button', { name: 'e2e4', exact: true })
@@ -47,7 +46,6 @@ test('rejects invalid moves and recovers', async ({ page }) => {
 });
 
 test('branches from a prior position and plays', async ({ page }) => {
-  await page.locator('summary').click();
   await page
     .locator('#legal')
     .getByRole('button', { name: 'd2d4', exact: true })
@@ -140,7 +138,6 @@ test('adds a new game after mate', async ({ page }) => {
   await page.locator('#mnemonic').fill('cmp1 f2f3 e7e5 g2g4 d8h4');
   await page.locator('#check').click();
   await expect(page.locator('#turn')).toContainText('Game ended: 0-1');
-  await page.locator('summary').click();
   await page
     .locator('#legal')
     .getByRole('button', { name: 'e2e4', exact: true })
@@ -269,4 +266,24 @@ test('keeps the board and shortcut dialog within a resized viewport', async ({
       }),
     )
     .toBe(true);
+});
+
+test('shows long move lists without inner scrolling', async ({ page }) => {
+  const moves = Array(16).fill('g1f3 g8f6 f3g1 f6g8').join(' ');
+  await page.locator('#mnemonic').fill(`cmp1 ${moves}`);
+  await page.locator('#check').click();
+  await expect(page.locator('#status')).toContainText('64 legal moves');
+  await expect(page.locator('#moves button')).toHaveCount(64);
+  for (const id of ['moves', 'legal', 'output']) {
+    expect(
+      await page.locator(`#${id}`).evaluate((element) => {
+        return element.scrollHeight <= element.clientHeight;
+      }),
+    ).toBe(true);
+  }
+  await expect(page.locator('#legal')).toHaveCSS('display', 'grid');
+  await expect(page.locator('input[type="range"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Move 1: Nf3', exact: true }).click();
+  await expect(page.locator('#position')).toHaveText('1 / 64');
+  await expect(page.locator('#turn')).toHaveText('Black to move');
 });

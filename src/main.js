@@ -65,7 +65,6 @@ function invalidate() {
     'next',
     'last',
     'play',
-    'scrubber',
   ])
     $(id).disabled = true;
   $('moves').replaceChildren();
@@ -109,9 +108,6 @@ function renderPosition() {
     board.addMarker(MARKER_TYPE.frame, frame.move.slice(2, 4));
   }
   $('position').textContent = `${cursor} / ${data.moves.length}`;
-  $('scrubber').max = data.moves.length;
-  $('scrubber').value = cursor;
-  $('scrubber').disabled = !data.moves.length;
   const player = frame.turn === 'w' ? 'White' : 'Black';
   $('turn').textContent = frame.result
     ? `Game ended: ${frame.result}`
@@ -132,7 +128,11 @@ function renderPosition() {
   $('legal-count').textContent =
     `(${legal.length}${frame.result ? ', new game' : ''})`;
   $('legal').replaceChildren(
-    ...legal.map((move) => moveButton(move, () => append(move))),
+    ...legal.map((move) => {
+      const button = moveButton(move, () => append(move));
+      button.title = 'Add here and replace the continuation';
+      return button;
+    }),
   );
   board.disableMoveInput();
   if (!frame.result && !timer) board.enableMoveInput(input, frame.turn);
@@ -253,7 +253,6 @@ $('first').onclick = () => navigate(0);
 $('previous').onclick = () => navigate(cursor - 1);
 $('next').onclick = () => navigate(cursor + 1);
 $('last').onclick = () => navigate(data.moves.length);
-$('scrubber').oninput = () => navigate(Number($('scrubber').value));
 $('play').onclick = () => {
   if (timer) {
     stop();
