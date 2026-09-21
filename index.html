@@ -24,7 +24,7 @@
       </header>
       <main>
         <div class="intro">
-          <p>A small text format. A sequence of legal moves.</p>
+          <p>Check / convert / replay.</p>
           <span id="version">cmp1 / connecting</span>
         </div>
         <section id="workbench" class="workbench" aria-label="CMP workbench">
@@ -36,7 +36,7 @@
                 id="mnemonic"
                 spellcheck="false"
                 maxlength="4096"
-                rows="5"
+                rows="3"
               >
 cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
               <div class="actions">
@@ -59,9 +59,7 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
                   required
                 /><button id="generate" type="submit">Generate random</button>
               </form>
-              <p class="hint">
-                Replaces the sequence. Each move is one turn by one player.
-              </p>
+              <p class="hint">Replaces the sequence.</p>
               <div class="examples">
                 <label for="example">Load example</label
                 ><select id="example">
@@ -149,48 +147,26 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
             <div id="moves" aria-label="Move history"></div>
             <details>
               <summary>Legal moves <span id="legal-count"></span></summary>
-              <p class="hint">
-                Select a move to add it at this position. Later moves are
-                replaced.
-              </p>
+              <p class="hint">Add a move here; replace the continuation.</p>
               <div id="legal"></div>
             </details>
-            <p class="hint">
-              Move pieces by click or drag, or use the legal move buttons.
-            </p>
+            <div class="keyboard-bar">
+              <span
+                ><kbd>←</kbd> <kbd>→</kbd> Step · <kbd>Space</kbd> Play</span
+              >
+              <button id="show-shortcuts" type="button">? Keys</button>
+            </div>
           </section>
         </section>
         <section id="reference" class="reference">
-          <h2>Format notes</h2>
-          <div class="notes">
-            <div>
-              <h3>01 / Write</h3>
-              <p>
-                Start with <code>cmp1</code>, then legal UCI moves. Lowercase.
-                One space between moves.
-              </p>
-              <code>cmp1 e2e4 e7e5</code>
-            </div>
-            <div>
-              <h3>02 / Move</h3>
-              <p>
-                Use source and destination squares. Add a piece letter for
-                promotion. Castling uses the king move.
-              </p>
-              <code>e2e4 · e7e8q · e1g1</code>
-            </div>
-            <div>
-              <h3>03 / Continue</h3>
-              <p>
-                After checkmate or stalemate, the next move starts a new game.
-                PGN separates the games.
-              </p>
-              <a
-                href="https://github.com/julesora/cmp/blob/main/spec/cmp-0001.md"
-                >Read CMP 1 specification ↗</a
-              >
-            </div>
-          </div>
+          <h2>CMP 1</h2>
+          <p>
+            <code>cmp1 e2e4 e7e5 g1f3</code> — lowercase UCI, space-separated.
+          </p>
+          <p>A move after mate or stalemate starts a new game.</p>
+          <a href="https://github.com/julesora/cmp/blob/main/spec/cmp-0001.md"
+            >Protocol reference ↗</a
+          >
         </section>
       </main>
       <footer>
@@ -202,6 +178,37 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
         ><span id="privacy">No saved history.</span>
       </footer>
     </div>
+    <dialog id="shortcuts" aria-labelledby="shortcuts-title">
+      <form method="dialog">
+        <div class="board-title">
+          <h2 id="shortcuts-title">Keys</h2>
+          <button value="close" aria-label="Close shortcuts">Close</button>
+        </div>
+        <dl class="key-list">
+          <dt><kbd>←</kbd> / <kbd>→</kbd></dt>
+          <dd>Previous / next move</dd>
+          <dt><kbd>Home</kbd> / <kbd>End</kbd></dt>
+          <dd>First / last position</dd>
+          <dt><kbd>Space</kbd></dt>
+          <dd>Play / pause</dd>
+          <dt><kbd>F</kbd></dt>
+          <dd>Flip board</dd>
+          <dt><kbd>/</kbd></dt>
+          <dd>Focus sequence</dd>
+          <dt><kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Enter</kbd></dt>
+          <dd>Check sequence</dd>
+          <dt><kbd>?</kbd></dt>
+          <dd>Show keys</dd>
+          <dt><kbd>Esc</kbd></dt>
+          <dd>Close dialog</dd>
+        </dl>
+        <label class="shortcut-option"
+          ><input id="letter-shortcuts" type="checkbox" checked /> Enable F, /
+          and ? shortcuts</label
+        >
+        <p class="hint">Navigation keys apply outside fields and controls.</p>
+      </form>
+    </dialog>
     <dialog id="promotion">
       <form method="dialog">
         <h2>Promote pawn</h2>

@@ -7,10 +7,11 @@ import {
   Markers,
   MARKER_TYPE,
 } from 'cm-chessboard/src/extensions/markers/Markers.js';
-import pieces from 'cm-chessboard/assets/pieces/standard.svg?url';
+import pieces from './pieces.svg?url&no-inline';
 import markerSprite from 'cm-chessboard/assets/extensions/markers/markers.svg?url&no-inline';
 import './style.css';
 import { browserMode, run } from './client.js';
+import { bindShortcuts } from './shortcuts.js';
 
 const $ = (id) => document.getElementById(id);
 const examples = {
@@ -234,9 +235,6 @@ $('mnemonic').addEventListener('input', () => {
   status('Edited. Check sequence to update.');
   $('mnemonic').removeAttribute('aria-invalid');
 });
-$('mnemonic').addEventListener('keydown', (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') inspect();
-});
 $('normalize').onclick = () => {
   $('mnemonic').value = data.normalized;
   status('✓ Normalized / lowercase, single spaces');
@@ -317,4 +315,5 @@ $('download').onclick = () => {
 $('privacy').textContent = browserMode
   ? 'Runs in your browser. No saved history.'
   : 'Processed by your server. No saved history.';
+bindShortcuts();
 inspect(undefined, false);

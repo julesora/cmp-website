@@ -62,6 +62,21 @@ Build and test the browser version:
     npm run build:pages
     npm run test:pages
 
+Keys
+----
+
+Outside fields and controls:
+
+* Left / Right: previous / next move
+* Home / End: first / last position
+* Space: play / pause
+* F: flip board
+* /: focus sequence
+* ?: show shortcuts
+
+Ctrl+Enter (Cmd+Enter on macOS) checks the sequence.
+The Keys dialog can disable F, / and ? shortcuts.
+
 Files
 -----
 
@@ -69,6 +84,7 @@ Files
 * server/app.py: HTTP API
 * src/main.js: interface and board controls
 * src/client.js: server and browser requests
+* src/shortcuts.js: keyboard controls
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files
 * tests/: API and browser tests
@@ -82,13 +98,10 @@ Credits
 * [FastAPI][fastapi] serves the local API. MIT license.
 * [Vite][vite] builds and serves the frontend. MIT license.
 
-The [standard chess pieces][pieces] are by Cburnett and Rfc1394, adapted
-by Stefan Haack for cm-chessboard. They use the CC BY-SA 3.0 license.
-The original attribution and license are included in the SVG file.
+The letter pieces in src/pieces.svg are drawn for this project.
 
 [cmp]: https://github.com/julesora/cmp
 [board]: https://github.com/shaack/cm-chessboard
 [pyodide]: https://github.com/pyodide/pyodide
 [fastapi]: https://github.com/fastapi/fastapi
 [vite]: https://github.com/vitejs/vite
-[pieces]: https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces/Standard

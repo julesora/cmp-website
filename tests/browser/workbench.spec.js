@@ -182,3 +182,91 @@ test('does not overwrite edits with a late generated response', async ({
   await expect(page.locator('#mnemonic')).toHaveValue('cmp1 d2d4');
   await expect(page.locator('#status')).toContainText('Edited.');
 });
+
+test('navigates and plays with keyboard shortcuts', async ({ page }) => {
+  await page.locator('h1').click();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#position')).toHaveText('1 / 5');
+  await page.keyboard.press('End');
+  await expect(page.locator('#position')).toHaveText('5 / 5');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#position')).toHaveText('5 / 5');
+  await page.keyboard.press('Home');
+  await page.keyboard.press('Space');
+  await expect(page.locator('#play')).toHaveText('Pause');
+  await page.keyboard.press('Space');
+  await expect(page.locator('#play')).toHaveText('Play');
+  await page.keyboard.press('/');
+  await expect(page.locator('#mnemonic')).toBeFocused();
+  await page.locator('#mnemonic').fill('cmp1 d2d4');
+  await page.keyboard.press('Control+Enter');
+  await expect(page.locator('#status')).toContainText('1 legal moves');
+});
+
+test('preserves native controls and offers shortcut settings', async ({
+  page,
+}) => {
+  await page.locator('#random-count').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#position')).toHaveText('0 / 5');
+  await page.locator('#tab-san').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#tab-pgn')).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(page.locator('#position')).toHaveText('0 / 5');
+  await page.locator('h1').click();
+  await page.keyboard.press('?');
+  await expect(page.locator('#shortcuts')).toBeVisible();
+  await page.keyboard.press('End');
+  await expect(page.locator('#position')).toHaveText('0 / 5');
+  await page.locator('#letter-shortcuts').uncheck();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#shortcuts')).not.toBeVisible();
+  await page.locator('h1').click();
+  await page.keyboard.press('/');
+  await expect(page.locator('#mnemonic')).not.toBeFocused();
+  await page.keyboard.press('?');
+  await expect(page.locator('#shortcuts')).not.toBeVisible();
+  await page.locator('#show-shortcuts').click();
+  await expect(page.locator('#shortcuts')).toBeVisible();
+});
+
+test('flips the board with F without changing the sequence', async ({
+  page,
+}) => {
+  const before = await page
+    .locator('#board [data-square="a1"]')
+    .first()
+    .boundingBox();
+  await page.locator('h1').click();
+  await page.keyboard.press('f');
+  await expect
+    .poll(async () => {
+      const after = await page
+        .locator('#board [data-square="a1"]')
+        .first()
+        .boundingBox();
+      return after.x > before.x;
+    })
+    .toBe(true);
+  await expect(page.locator('#mnemonic')).toHaveValue(
+    'cmp1 e2e4 e7e5 g1f3 b8c6 f1b5',
+  );
+});
+
+test('keeps the board and shortcut dialog within a resized viewport', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('#show-shortcuts').click();
+  await expect(page.locator('#shortcuts')).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        return document.documentElement.scrollWidth <= innerWidth;
+      }),
+    )
+    .toBe(true);
+});

@@ -24,13 +24,16 @@ select {
 }
 button,
 select {
-  border: 1px solid #9b9f91;
+  border: 1px solid #59634f;
   background: #fafaf5;
   border-radius: 0;
   padding: 5px 11px;
 }
 button {
   cursor: pointer;
+  box-shadow: 2px 2px 0 #59634f;
+  font-weight: bold;
+  min-height: 32px;
 }
 button:hover:not(:disabled) {
   background: #e3e8dc;
@@ -43,6 +46,9 @@ button:disabled {
 a {
   color: var(--green);
   text-underline-offset: 4px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  font-weight: bold;
 }
 :focus-visible {
   outline: 2px solid var(--green);
@@ -102,6 +108,7 @@ nav {
   gap: 24px;
 }
 .panel {
+  min-width: 0;
   padding: 22px;
   border: 1px solid var(--line);
   background: #fbfbf6;
@@ -125,7 +132,7 @@ textarea {
   resize: vertical;
   display: block;
   width: 100%;
-  min-height: 150px;
+  min-height: 100px;
   padding: 14px;
   border: 1px solid #a7ae9e;
   border-radius: 0;
@@ -188,13 +195,13 @@ button.primary:hover:not(:disabled) {
   gap: 4px;
 }
 .tabs button {
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
+  border: 1px solid #59634f;
+  background: #fafaf5;
+  margin-bottom: 8px;
 }
 .tabs [aria-selected='true'] {
-  border-bottom-color: var(--green);
-  color: var(--green);
+  background: var(--green);
+  color: white;
   font-weight: bold;
 }
 #move-count,
@@ -209,7 +216,7 @@ pre {
   overflow-wrap: anywhere;
   margin: 0;
   padding: 18px 0;
-  min-height: 148px;
+  min-height: 100px;
   max-height: 300px;
   overflow-y: auto;
 }
@@ -230,7 +237,7 @@ pre {
   fill: #ebeede;
 }
 .cm-chessboard.legacy .board .square.black {
-  fill: #829376;
+  fill: #b3bdae;
 }
 .cm-chessboard .coordinates {
   font-family: 'Courier New', monospace;
@@ -283,6 +290,9 @@ details {
 summary {
   cursor: pointer;
   font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: bold;
 }
 #legal {
   display: flex;
@@ -402,7 +412,52 @@ dialog::backdrop {
   width: 80px;
   font: inherit;
   padding: 5px 8px;
-  border: 1px solid #9b9f91;
+  border: 1px solid #59634f;
   border-radius: 0;
   background: #fafaf5;
+}
+
+button:active:not(:disabled) {
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+a:hover {
+  background: #dfe7d8;
+}
+button:disabled {
+  box-shadow: none;
+}
+.keyboard-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 11px;
+}
+kbd {
+  font: inherit;
+  padding: 1px 4px;
+  border: 1px solid #9b9f91;
+  border-bottom-width: 2px;
+  background: #f5f4ee;
+  white-space: nowrap;
+}
+.key-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 20px;
+  font-size: 12px;
+}
+.key-list dd {
+  margin: 0;
+}
+.shortcut-option {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 24px;
+}
+.reference p {
+  font-size: 12px;
 }
