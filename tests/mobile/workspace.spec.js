@@ -28,7 +28,7 @@ test('generates, edits, saves and reopens a sequence', async ({ page }) => {
   await expect(page.locator('#board')).toBeVisible();
 });
 
-test('cancels a blank draft and deletes with undo', async ({ page }) => {
+test('cancels a blank draft and deletes a sequence', async ({ page }) => {
   await page.locator('#clear').tap();
   await page.locator('#start-blank').tap();
   await expect(page.locator('#panel-sequence')).toBeVisible();
@@ -41,8 +41,7 @@ test('cancels a blank draft and deletes with undo', async ({ page }) => {
   await page.locator('.collection-entry').getByRole('button', { name: 'Edit', exact: true }).tap();
   await page.locator('#delete-sequence').tap();
   await expect(page.locator('#viewer-content')).not.toBeVisible();
-  await page.locator('#undo-delete').tap();
-  await expect(page.locator('.collection-entry')).toHaveCount(1);
+  await expect(page.locator('.collection-entry')).toHaveCount(0);
 });
 
 test('fits import and export on small phones', async ({ page }) => {

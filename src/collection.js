@@ -14,7 +14,6 @@ try {
 export function bindCollection(actions) {
   let selected;
   let locked = false;
-  const deleted = [];
   const checked = new Set();
 
   function persist() {
@@ -29,7 +28,6 @@ export function bindCollection(actions) {
 
   function render() {
     $('list-empty').hidden = entries.length > 0;
-    $('undo-delete').disabled = locked || !deleted.length;
     $('sequences').replaceChildren(...entries.map((entry) => {
       const row = document.createElement('article');
       row.className = 'collection-entry';
@@ -64,8 +62,7 @@ export function bindCollection(actions) {
   }
 
   function renderExportLabel() {
-    const count = entries.filter((entry) => checked.has(entry.id)).length;
-    $('export-collection').textContent = count ? `Export (${count})` : 'Export all';
+    $('export-collection').textContent = 'Export';
     $('export-collection').disabled = locked || !entries.length;
   }
 
@@ -74,12 +71,6 @@ export function bindCollection(actions) {
     actions.export(selected.length ? selected : entries);
   };
 
-  $('undo-delete').onclick = () => {
-    const item = deleted.pop();
-    if (!item) return;
-    entries.splice(item.index, 0, item.entry);
-    persist();
-  };
   render();
   return {
     first() { return entries[0]; },
@@ -87,7 +78,6 @@ export function bindCollection(actions) {
       const index = entries.findIndex((entry) => entry.id === id);
       if (index < 0) return;
       const [entry] = entries.splice(index, 1);
-      deleted.push({ entry, index });
       checked.delete(id);
       actions.delete(entry);
       persist();

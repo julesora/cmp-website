@@ -101,19 +101,15 @@ test('cancels edits without changing the saved entry', async ({ page }) => {
   await expect(entry(page, 'Opening')).toBeVisible();
 });
 
-test('deletes selected entries, clears the viewer and supports undo', async ({ page }) => {
+test('deletes selected entries and clears the viewer', async ({ page }) => {
   await importSequence(page, 'Opening', 'e2e4');
   await showCollection(page);
   await entry(page, 'Opening').getByRole('button', { name: 'Edit', exact: true }).click();
   await page.locator('#delete-sequence').click();
   await expect(page.locator('#viewer-content')).not.toBeVisible();
   await expect(page.locator('#list-empty')).toBeVisible();
-  await page.locator('#undo-delete').click();
-  await showCollection(page);
-  await expect(entry(page, 'Opening')).toBeVisible();
-  await showCollection(page);
-  await entry(page, 'Opening').locator('.sequence-open').click();
-  await expect(page.locator('#moves button')).toHaveCount(1);
+  await page.reload();
+  await expect(page.locator('.collection-entry')).toHaveCount(0);
 });
 
 test('exports the chosen entry without changing the selection', async ({ page }) => {

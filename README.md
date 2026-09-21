@@ -21,7 +21,7 @@ Moves sit below the board.
 * Import: paste text or choose a CMP/UCI file. Check, normalize, then Import.
 * Edit: beside each name. Save updates that entry; Cancel restores it.
 * Export: at the top of Collection. Check entries to export a batch, or export all.
-* Delete: inside Edit. Undo delete in Collection restores the entry.
+* Delete: remove the entry from inside Edit.
 
 Exports support CMP, UCI, SAN and PGN. Batch exports share one text file.
 Legal destinations appear on the board when selecting a piece in Edit.

@@ -253,7 +253,6 @@ pre {
   grid-column: 1 / -1;
   min-width: 0;
   padding: 16px 20px 20px;
-  border-top: 1px solid var(--line);
 }
 .history-title {
   justify-content: space-between;
@@ -331,7 +330,6 @@ kbd {
 }
 .tools-column {
   padding: 0;
-  border-left: 1px solid var(--line);
   min-height: 100%;
 }
 #panel-sequence,
@@ -393,8 +391,7 @@ kbd {
     position: static;
     padding: 10px 12px 0;
     background: #fbfbf6;
-    border-bottom: 1px solid var(--line);
-  }
+    }
   .board-title {
     margin-bottom: 6px;
   }
@@ -449,7 +446,6 @@ kbd {
 
 #panel-sequence {
   padding: 16px;
-  border-bottom: 1px solid var(--line);
 }
 #panel-export {
   width: 560px;
@@ -517,7 +513,6 @@ kbd {
   margin: 0 0 0 auto;
 }
 .collection-entry {
-  border-top: 1px solid var(--line);
   padding: 12px 0;
 }
 .collection-entry input {
@@ -563,7 +558,6 @@ kbd {
 #collection {
   min-width: 0;
   padding: 16px;
-  border-right: 1px solid var(--line);
 }
 #collection > .actions {
   margin-bottom: 16px;
@@ -618,14 +612,12 @@ summary {
   }
   #viewer-content .tools-column {
     border-left: 0;
-    border-top: 1px solid var(--line);
-  }
+    }
 }
 @media (max-width: 780px) {
   #collection {
     border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
+    }
   #sequence-name {
     font-size: 16px;
   }
@@ -647,7 +639,6 @@ summary {
 }
 #viewer-content .tools-column {
   border-left: 0;
-  border-top: 1px solid var(--line);
 }
 .entry-heading {
   display: flex;
