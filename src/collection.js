@@ -11,7 +11,7 @@ try {
   // Keep working if browser storage is unavailable.
 }
 
-export function bindCollection(actions, examples) {
+export function bindCollection(actions) {
   let selected;
   let locked = false;
   const deleted = [];
@@ -20,7 +20,7 @@ export function bindCollection(actions, examples) {
   function persist() {
     try {
       localStorage.setItem(key, JSON.stringify(entries));
-      $('collection-status').textContent = 'Saved in this browser.';
+      $('collection-status').textContent = '';
     } catch {
       $('collection-status').textContent = 'Storage unavailable. Export to keep a copy.';
     }
@@ -28,7 +28,6 @@ export function bindCollection(actions, examples) {
   }
 
   function render() {
-    $('sequence-count').textContent = entries.length;
     $('list-empty').hidden = entries.length > 0;
     $('undo-delete').disabled = locked || !deleted.length;
     $('sequences').replaceChildren(...entries.map((entry) => {
@@ -41,9 +40,6 @@ export function bindCollection(actions, examples) {
       open.disabled = locked;
       if (entry.id === selected) open.setAttribute('aria-current', 'true');
       open.onclick = () => actions.open(entry);
-      const preview = document.createElement('p');
-      const moves = entry.sequence.trim().split(/\s+/).slice(1);
-      preview.textContent = `${moves.length} moves · ${moves.slice(0, 5).join(' ')}${moves.length > 5 ? ' …' : ''}`;
       const heading = document.createElement('div');
       heading.className = 'entry-heading';
       const checkbox = document.createElement('input');
@@ -61,11 +57,10 @@ export function bindCollection(actions, examples) {
       edit.disabled = locked;
       edit.onclick = () => actions.edit(entry);
       heading.append(checkbox, open, edit);
-      row.append(heading, preview);
+      row.append(heading);
       return row;
     }));
     renderExportLabel();
-    $('examples').querySelectorAll('button').forEach((button) => { button.disabled = locked; });
   }
 
   function renderExportLabel() {
@@ -85,12 +80,6 @@ export function bindCollection(actions, examples) {
     entries.splice(item.index, 0, item.entry);
     persist();
   };
-  for (const [name, sequence] of Object.entries(examples)) {
-    const button = document.createElement('button');
-    button.textContent = name;
-    button.onclick = () => actions.example(name, sequence);
-    $('examples').append(button);
-  }
   render();
   return {
     first() { return entries[0]; },

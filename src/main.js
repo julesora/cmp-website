@@ -15,14 +15,6 @@ import { bindShortcuts } from './shortcuts.js';
 import { bindCollection } from './collection.js';
 
 const $ = (id) => document.getElementById(id);
-const examples = {
-  'Ruy López': 'cmp1 e2e4 e7e5 g1f3 b8c6 f1b5',
-  Castling: 'cmp1 e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1',
-  'En passant': 'cmp1 e2e4 a7a6 e4e5 d7d5 e5d6',
-  Promotion: 'cmp1 a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2 b7a8q',
-  'New game after mate': 'cmp1 f2f3 e7e5 g2g4 d8h4 e2e4',
-  'Invalid move': 'cmp1 e2e5',
-};
 let data;
 let cursor = 0;
 let format = 'cmp';
@@ -126,7 +118,6 @@ function renderPosition() {
   $('turn').textContent = frame.result ? `Game ended: ${frame.result}`
     : `${frame.turn === 'w' ? 'White' : 'Black'} to move`;
   $('game').textContent = `Game ${frame.game}`;
-  $('move-count').textContent = `${data.moves.length} moves`;
   $('first').disabled = $('previous').disabled = cursor === 0;
   $('next').disabled = $('last').disabled = cursor === data.moves.length;
   $('play').disabled = !data.moves.length || Boolean(mode);
@@ -210,7 +201,7 @@ async function openEntry(entry, action = 'view') {
       if (action === 'edit') startDraft('edit');
       else { showCollection(false); $('viewer').scrollIntoView({ block: 'start' }); }
     }
-    status(`✓ Valid sequence / ${result.moves.length} moves`);
+    status('');
   } catch (error) {
     if (id !== request) return;
     mode = null;
@@ -256,7 +247,7 @@ function cancelDraft() {
   $('sequence-dialog').close();
   $('new-dialog').close();
   renderPosition();
-  status(selectedEntry ? `Viewing ${selectedEntry.name}.` : 'Select a sequence or create a new one.');
+  status(selectedEntry ? '' : 'Select a sequence or create a new one.');
   if (!data) showCollection(true);
   $('show-collection').focus();
 }
@@ -278,7 +269,7 @@ async function createDraft(generate) {
     $('editor-home').append($('panel-sequence'));
     $('new-dialog').close();
     renderPosition();
-    status('New draft. Save to add it to the collection.');
+    status('');
     $('viewer').scrollIntoView({ block: 'start' });
     $('sequence-name').focus();
   } catch (error) {
@@ -298,7 +289,7 @@ async function validateDraft({ normalize = false, apply = false } = {}) {
     if (id !== request || mode !== currentMode) return;
     draftData = result;
     if (normalize) $('mnemonic').value = result.normalized;
-    status(`✓ ${result.moves.length} moves`, false, 'draft-status');
+    status('Checked.', false, 'draft-status');
     if (mode === 'edit') {
       data = result;
       cursor = data.moves.length;
@@ -314,7 +305,7 @@ async function validateDraft({ normalize = false, apply = false } = {}) {
       collection.select(selectedEntry.id);
       showCollection(false);
       renderPosition();
-      status(`Saved ${selectedEntry.name}.`);
+      status('');
       $('board').focus();
     }
   } catch (error) {
@@ -411,15 +402,10 @@ const collection = bindCollection({
       collection.select(null);
       renderPosition();
       showCollection(true);
-      status('Sequence deleted. Choose another or undo deletion.');
+      status('Deleted.');
     }
   },
-  example: (name, sequence) => {
-    startDraft('import', sequence);
-    $('sequence-name').value = name;
-    validateDraft();
-  },
-}, examples);
+});
 
 $('show-collection').onclick = () => showCollection($('collection').hidden);
 $('delete-sequence').onclick = () => {

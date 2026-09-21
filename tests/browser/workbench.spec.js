@@ -56,7 +56,7 @@ test('imports then selects a read-only sequence', async ({ page }) => {
 test('New leads to an unsaved edit for generated or blank sequences', async ({ page }) => {
   await newDraft(page, 8);
   await expect(page.locator('#position')).toHaveText('0 / 8');
-  await expect(page.locator('#sequence-count')).toHaveText('0');
+  await expect(page.locator('.collection-entry')).toHaveCount(0);
   await page.locator('#cancel').click();
   await expect(page.locator('#viewer-content')).not.toBeVisible();
   await newDraft(page);
@@ -78,12 +78,12 @@ test('edits and renames a specific entry without duplicating it', async ({ page 
   await page.locator('#mnemonic').fill('e2e4 e7e5');
   await page.locator('#apply').click();
   await expect(page.locator('.collection-entry')).toHaveCount(2);
-  await expect(entry(page, 'Revised')).toContainText('2 moves');
+  await expect(page.locator('#moves button')).toHaveCount(2);
   await showCollection(page);
   await entry(page, 'Two').locator('.sequence-open').click();
   await expect(page.locator('#moves button')).toHaveText(['d4']);
   await page.reload();
-  await expect(page.locator('#status')).toContainText('Valid sequence');
+  await expect(page.locator('#viewer-title')).toHaveText('Revised');
   await showCollection(page);
   await expect(entry(page, 'Revised')).toBeVisible();
 });
@@ -136,7 +136,7 @@ test('checks and normalizes imported files without replacing the viewer', async 
   await showCollection(page);
   await page.locator('#import').click();
   await page.locator('#import-file').setInputFiles({ name: 'moves.uci', mimeType: 'text/plain', buffer: Buffer.from('CMP1  E2E4 E7E5') });
-  await expect(page.locator('#draft-status')).toHaveText('✓ 2 moves');
+  await expect(page.locator('#draft-status')).toHaveText('Checked.');
   await expect(page.locator('#viewer-title')).toHaveText('Original');
   await page.locator('#normalize').click();
   await expect(page.locator('#mnemonic')).toHaveValue('cmp1 e2e4 e7e5');
@@ -150,7 +150,7 @@ test('highlights invalid moves and does not save them', async ({ page }) => {
   await page.locator('#apply').click();
   await expect(page.locator('#draft-status')).toContainText('illegal move 1');
   expect(await page.locator('#mnemonic').evaluate((element) => element.value.slice(element.selectionStart, element.selectionEnd))).toBe('e2e5');
-  await expect(page.locator('#sequence-count')).toHaveText('0');
+  await expect(page.locator('.collection-entry')).toHaveCount(0);
 });
 
 test('builds moves on the board only while editing', async ({ page }) => {
@@ -162,7 +162,7 @@ test('builds moves on the board only while editing', async ({ page }) => {
   await expect(page.locator('#position')).toHaveText('1 / 1');
   await page.locator('#sequence-name').fill('Board moves');
   await page.locator('#apply').click();
-  await expect(entry(page, 'Board moves')).toContainText('1 moves');
+  await expect(page.locator('#moves button')).toHaveCount(1);
 });
 
 test('preserves promotion choices', async ({ page }) => {
@@ -188,7 +188,7 @@ test('supports navigation and explicit edit shortcuts', async ({ page }) => {
   await expect(page.locator('#mnemonic')).toBeFocused();
   await page.locator('#mnemonic').fill('d2d4');
   await page.keyboard.press('Control+Enter');
-  await expect(entry(page, 'Opening')).toContainText('1 moves');
+  await expect(page.locator('#moves button')).toHaveCount(1);
 });
 
 test('ignores generation after New is cancelled', async ({ page }) => {
@@ -207,7 +207,7 @@ test('ignores generation after New is cancelled', async ({ page }) => {
   release();
   await page.waitForResponse('**/api/generate');
   await expect(page.locator('#viewer-content')).not.toBeVisible();
-  await expect(page.locator('#sequence-count')).toHaveText('0');
+  await expect(page.locator('.collection-entry')).toHaveCount(0);
 });
 
 test('exports a batch and keeps moves below the board', async ({ page }) => {

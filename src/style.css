@@ -674,3 +674,9 @@ summary {
     gap: 8px;
   }
 }
+
+#status:empty,
+#draft-status:empty,
+#collection-status:empty {
+  display: none;
+}
