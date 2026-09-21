@@ -14,6 +14,7 @@ import { browserMode, run } from './client.js';
 import { bindShortcuts } from './shortcuts.js';
 import { bindCollection } from './collection.js';
 import { bindWorkspace } from './workspace.js';
+import { buttonIcon } from './icons.js';
 
 const $ = (id) => document.getElementById(id);
 let data;
@@ -54,7 +55,7 @@ function errorMessage(error) {
 function stop() {
   clearInterval(timer);
   timer = undefined;
-  $('play').textContent = 'Play';
+  buttonIcon($('play'), 'Play', 'play', true);
   $('play').setAttribute('aria-label', 'Play moves');
 }
 
@@ -455,7 +456,7 @@ $('play').onclick = () => {
     if (cursor >= data.moves.length) stop();
     renderPosition();
   }, Number($('speed').value));
-  $('play').textContent = 'Pause';
+  buttonIcon($('play'), 'Pause', 'pause', true);
   $('play').setAttribute('aria-label', 'Pause moves');
 };
 $('speed').onchange = () => { if (timer) { stop(); $('play').click(); } };
@@ -510,6 +511,14 @@ async function initialize() {
   }
 }
 $('retry').onclick = initialize;
+for (const id of ['first', 'previous', 'play', 'next', 'last']) {
+  buttonIcon($(id), $(id).getAttribute('aria-label'), id, true);
+}
+buttonIcon($('flip'), 'Flip board', 'flip');
+buttonIcon($('show-shortcuts'), 'Keys', 'keys');
+document.querySelectorAll('dialog form[method="dialog"] button').forEach((button) => {
+  if (button.textContent.trim() === 'Close') buttonIcon(button, 'Close', 'close');
+});
 const workspace = bindWorkspace();
 bindShortcuts();
 renderPosition();

@@ -32,6 +32,12 @@ test('generates, edits, saves and reopens a sequence', async ({ page }) => {
   await expect(page.locator('#panel-sequence')).not.toBeVisible();
   await expect(page.locator('#viewer-title')).toHaveText('Phone test');
   await expect(page.locator('#board')).toBeVisible();
+  const board = await page.locator('#board').boundingBox();
+  const first = await page.locator('#first').boundingBox();
+  const last = await page.locator('#last').boundingBox();
+  expect(Math.abs((first.x + last.x + last.width) / 2 - (board.x + board.width / 2))).toBeLessThan(1);
+  await expect(page.locator('#flip')).toHaveAccessibleName('Flip board');
+
 });
 
 test('cancels a blank draft and deletes a sequence', async ({ page }) => {

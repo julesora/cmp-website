@@ -109,6 +109,7 @@ Files
 * src/client.js: server and browser requests
 * src/collection.js: saved sequences
 * src/workspace.js: desktop and phone layout
+* src/icons.js: button icons
 * src/shortcuts.js: keyboard controls
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files

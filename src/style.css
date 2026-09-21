@@ -757,3 +757,51 @@ summary {
     display: none;
   }
 }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.playback {
+  justify-content: center;
+}
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+.icon-button .action-icon {
+  display: block;
+}
+.icon-button .action-label {
+  display: none;
+}
+@media (max-width: 780px) {
+  .phone-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .phone-icon-button .action-icon {
+    display: block;
+  }
+  .phone-icon-button .action-label {
+    display: none;
+  }
+  .board-title .phone-icon-button {
+    min-height: 44px;
+  }
+}

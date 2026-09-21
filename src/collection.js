@@ -1,3 +1,5 @@
+import { buttonIcon } from './icons.js';
+
 const key = 'cmp-sequences';
 const $ = (id) => document.getElementById(id);
 let entries = [
@@ -57,7 +59,7 @@ export function bindCollection(actions) {
         renderExportLabel();
       };
       const edit = document.createElement('button');
-      edit.textContent = 'Edit';
+      buttonIcon(edit, 'Edit', 'edit');
       edit.disabled = locked;
       edit.onclick = () => actions.edit(entry);
       heading.append(checkbox, open, edit);
