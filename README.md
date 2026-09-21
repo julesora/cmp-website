@@ -8,22 +8,24 @@ Website: https://julesora.github.io/cmp-website/
 
 ![CMP board and move history](docs/preview.png)
 
-[Phone preview](docs/mobile.png)
+[Phone preview](docs/mobile.png) · [Collection preview](docs/collection.png)
 
 Layout
 ------
 
-The main view contains the board, moves and playback controls.
+The board and moves are the main view. Open Collection to choose or manage
+sequences. Selecting an entry opens it for viewing and closes Collection.
+Moves sit below the board.
 
-* New: generate or build a sequence, then Create.
+* New: generate or start blank, then edit. Save adds the draft to the collection.
 * Import: paste text or choose a CMP/UCI file. Check, normalize, then Import.
-* Edit: change text or play moves. Apply keeps changes; Cancel restores them.
-* Export: copy or download CMP, UCI, SAN or PGN.
-* List: saved sequences and examples. Rename, duplicate or remove entries.
+* Edit: beside each name. Save updates that entry; Cancel restores it.
+* Export: at the top of Collection. Check entries to export a batch, or export all.
+* Delete: inside Edit. Undo delete in Collection restores the entry.
 
-Legal moves appear only in New and Edit. Undo restores the previous sequence.
-New and imported sequences are saved locally. Use Save current to keep edits.
-The collection survives reloads. Clear collection removes it from this browser.
+Exports support CMP, UCI, SAN and PGN. Batch exports share one text file.
+Legal destinations appear on the board when selecting a piece in Edit.
+The collection is saved in this browser and survives reloads.
 
 Setup
 -----

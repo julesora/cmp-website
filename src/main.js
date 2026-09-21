@@ -32,8 +32,9 @@ let mode = null;
 let original;
 let draftData;
 let selectedSquare;
-let saveOnApply = true;
-const undo = [];
+let selectedEntry = null;
+let editTarget = null;
+let exportData = [];
 const board = new Chessboard($('board'), {
   position: FEN.start,
   assetsCache: false,
@@ -72,8 +73,8 @@ function moveButton(text, action) {
 }
 
 function exportText() {
-  if (!data) return '';
-  return format === 'cmp' ? data.normalized : data.outputs[format];
+  return exportData.map((result) => format === 'cmp' ? result.normalized : result.outputs[format])
+    .join(format === 'pgn' ? '\n\n' : '\n');
 }
 
 function renderOutput() {
@@ -84,41 +85,36 @@ function renderOutput() {
     button.setAttribute('aria-selected', String(selected));
     button.tabIndex = selected ? 0 : -1;
   });
-  $('copy').disabled = $('download').disabled = !data?.valid;
+  $('copy').disabled = $('download').disabled = !exportData.length;
   $('copy-status').textContent = '';
 }
 
 function renderMode() {
-  for (const id of ['import', 'clear', 'export', 'list', 'edit']) {
-    $(id).disabled = Boolean(mode) || (!data && !['import', 'clear'].includes(id));
+  const editing = mode === 'edit' || mode === 'import';
+  $('show-collection').disabled = Boolean(mode);
+  $('delete-sequence').hidden = mode !== 'edit' || !editTarget;
+  if (mode === 'loading') {
+    for (const id of ['first', 'previous', 'next', 'last', 'play']) $(id).disabled = true;
   }
-  $('undo').disabled = Boolean(mode) || !undo.length;
-  $('panel-sequence').hidden = !mode;
-  $('panel-legal').hidden = !['new', 'edit'].includes(mode);
-  $('validation-actions').hidden = mode === 'edit';
-  $('generator').hidden = mode !== 'new';
-  $('file-row').hidden = mode !== 'import';
-  $('save-sequence').disabled = !data?.valid;
-}
-
-function renderLegal() {
-  const source = mode === 'new' ? draftData : data;
-  const frame = mode === 'new' ? source?.frames.at(-1) : source?.frames[cursor];
-  let legal = frame ? (frame.result ? source.frames[0].legal : frame.legal) : [];
-  if (selectedSquare) legal = legal.filter((move) => move.startsWith(selectedSquare));
-  $('legal-count').textContent = `(${legal.length})`;
-  $('legal').replaceChildren(...legal.map((move) => {
-    const button = moveButton(move, () => append(move));
-    button.title = 'Add here and replace the continuation';
-    button.disabled = !draftData;
-    return button;
-  }));
+  $('import').disabled = $('clear').disabled = Boolean(mode);
+  collection.lock(Boolean(mode));
+  $('panel-sequence').hidden = !editing;
+  $('validation-actions').hidden = mode !== 'import';
+  $('viewer-content').hidden = !data;
+  $('viewer-title').textContent = mode === 'edit'
+    ? `Editing · ${$('sequence-name').value || 'New sequence'}`
+    : selectedEntry?.name || 'Select a sequence';
 }
 
 function renderPosition() {
   renderMode();
   renderOutput();
-  if (!data) return;
+  if (!data) {
+    board.disableMoveInput();
+    board.setPosition(FEN.start);
+    $('moves').replaceChildren();
+    return;
+  }
   const frame = data.frames[cursor];
   board.setPosition(frame.fen);
   board.removeMarkers();
@@ -136,7 +132,6 @@ function renderPosition() {
   $('play').disabled = !data.moves.length || Boolean(mode);
   $('version').textContent = `cmp1 / cmp ${data.version}`;
   renderHistory();
-  renderLegal();
   board.disableMoveInput();
   if (mode === 'edit' && draftData && !frame.result) board.enableMoveInput(input, frame.turn);
 }
@@ -192,101 +187,134 @@ function sequenceText(text) {
   return !trimmed || /^cmp1(?:\s|$)/i.test(trimmed) ? trimmed : `cmp1 ${trimmed}`;
 }
 
-function remember(snapshot) {
-  if (!snapshot?.data) return;
-  undo.push(snapshot);
-  if (undo.length > 50) undo.shift();
-}
-
-function commit(result, atEnd = false, snapshot = { data, cursor }) {
-  remember(snapshot);
-  data = result;
-  cursor = atEnd ? data.moves.length : 0;
-  status(data.valid ? `✓ Valid sequence / ${data.moves.length} moves` : 'Empty sequence.');
+async function openEntry(entry, action = 'view') {
+  const id = ++request;
+  stop();
+  mode = 'loading';
+  renderMode();
+  status('Loading sequence…');
+  try {
+    const result = await run({ mnemonic: entry.sequence });
+    if (id !== request) return;
+    mode = null;
+    if (action === 'export') {
+      exportData = [result];
+      $('export-title').textContent = `Export · ${entry.name}`;
+      renderOutput();
+      $('panel-export').showModal();
+    } else {
+      data = result;
+      cursor = 0;
+      selectedEntry = entry;
+      collection.select(entry.id);
+      if (action === 'edit') startDraft('edit');
+      else { showCollection(false); $('viewer').scrollIntoView({ block: 'start' }); }
+    }
+    status(`✓ Valid sequence / ${result.moves.length} moves`);
+  } catch (error) {
+    if (id !== request) return;
+    mode = null;
+    status(errorMessage(error), true);
+  }
   renderPosition();
 }
 
-async function load(sequence) {
-  const id = ++request;
-  stop();
-  status(browserMode && !data ? 'Loading CMP…' : 'Checking…');
-  try {
-    const result = await run({ mnemonic: sequenceText(sequence) });
-    if (id !== request) return;
-    commit(result);
-    $('retry').hidden = true;
-  } catch (error) {
-    if (id !== request) return;
-    status(errorMessage(error), true);
-    $('retry').hidden = false;
-    renderMode();
-  }
-}
-
-function startDraft(nextMode, text, save = true) {
-  saveOnApply = save;
+function startDraft(nextMode, text = '') {
   ++request;
   stop();
-  original = { data, cursor };
+  original = { data, cursor, entry: selectedEntry };
   mode = nextMode;
+  editTarget = nextMode === 'edit' ? selectedEntry?.id : null;
   selectedSquare = null;
   draftData = nextMode === 'edit' ? data : null;
-  $('mnemonic').value = text ?? (nextMode === 'edit' ? data.normalized : '');
+  $('sequence-name').value = nextMode === 'edit' ? selectedEntry.name : '';
+  $('mnemonic').value = nextMode === 'edit' ? data.normalized : text;
   $('mnemonic').removeAttribute('aria-invalid');
   status('', false, 'draft-status');
   const parent = nextMode === 'edit' ? 'editor-home' : 'dialog-editor';
   $(parent).append($('panel-sequence'));
-  $('apply').textContent = nextMode === 'new' ? 'Create' : nextMode === 'import' ? 'Import' : 'Apply';
-  $('sequence-title').textContent = nextMode === 'new' ? 'New sequence' : 'Import sequence';
+  $('apply').textContent = nextMode === 'import' ? 'Import' : 'Save';
   renderPosition();
-  if (nextMode !== 'edit') $('sequence-dialog').showModal();
-  $('mnemonic').focus();
-  if (nextMode === 'new') validateDraft();
-  if (nextMode === 'edit') status('Editing. Apply to keep changes.', false);
+  if (nextMode === 'edit') showCollection(false);
+  if (nextMode === 'import') $('sequence-dialog').showModal();
+  if (nextMode === 'new') {
+    status('', false, 'new-status');
+    $('new-dialog').showModal();
+    $('start-blank').focus();
+  } else $('mnemonic').focus();
 }
 
 function cancelDraft() {
-  if (!mode) return;
+  if (!mode || mode === 'loading') return;
   ++request;
   data = original.data;
   cursor = original.cursor;
+  selectedEntry = original.entry;
   mode = null;
   draftData = null;
   selectedSquare = null;
-  if ($('sequence-dialog').open) $('sequence-dialog').close();
+  $('sequence-dialog').close();
+  $('new-dialog').close();
   renderPosition();
-  status(data?.valid ? `✓ Valid sequence / ${data.moves.length} moves` : 'Empty sequence.');
-  $('edit').focus();
+  status(selectedEntry ? `Viewing ${selectedEntry.name}.` : 'Select a sequence or create a new one.');
+  if (!data) showCollection(true);
+  $('show-collection').focus();
 }
 
-async function validateDraft({ normalize = false, generate = false, apply = false } = {}) {
+async function createDraft(generate) {
+  const id = ++request;
+  status(generate ? 'Generating…' : 'Starting…', false, 'new-status');
+  try {
+    const result = await run(generate ? { moves: Number($('random-count').value) } : { mnemonic: '' });
+    if (id !== request || mode !== 'new') return;
+    mode = 'edit';
+    showCollection(false);
+    data = draftData = result;
+    cursor = 0;
+    editTarget = null;
+    $('mnemonic').value = result.normalized;
+    $('sequence-name').value = '';
+    $('apply').textContent = 'Save';
+    $('editor-home').append($('panel-sequence'));
+    $('new-dialog').close();
+    renderPosition();
+    status('New draft. Save to add it to the collection.');
+    $('viewer').scrollIntoView({ block: 'start' });
+    $('sequence-name').focus();
+  } catch (error) {
+    if (id === request) status(errorMessage(error), true, 'new-status');
+  }
+}
+
+async function validateDraft({ normalize = false, apply = false } = {}) {
   if (!mode) return;
   const id = ++request;
   const currentMode = mode;
-  status(generate ? 'Generating…' : 'Checking…', false, 'draft-status');
+  status('Checking…', false, 'draft-status');
   $('mnemonic').removeAttribute('aria-invalid');
   try {
-    const payload = generate ? { moves: Number($('random-count').value) }
-      : { mnemonic: sequenceText($('mnemonic').value) };
+    const payload = { mnemonic: sequenceText($('mnemonic').value) };
     const result = await run(payload);
     if (id !== request || mode !== currentMode) return;
     draftData = result;
-    if (normalize || generate) $('mnemonic').value = result.normalized;
+    if (normalize) $('mnemonic').value = result.normalized;
     status(`✓ ${result.moves.length} moves`, false, 'draft-status');
     if (mode === 'edit') {
       data = result;
       cursor = data.moves.length;
       renderPosition();
     }
-    renderLegal();
     if (apply) {
-      const savedMode = mode;
-      const snapshot = original;
+      selectedEntry = collection.save(editTarget, $('sequence-name').value, result.normalized);
+      data = result;
+      cursor = mode === 'edit' ? data.moves.length : 0;
       mode = null;
       selectedSquare = null;
       $('sequence-dialog').close();
-      commit(result, savedMode === 'edit', snapshot);
-      if (saveOnApply && savedMode !== 'edit' && result.valid) saveSequence(result.normalized);
+      collection.select(selectedEntry.id);
+      showCollection(false);
+      renderPosition();
+      status(`Saved ${selectedEntry.name}.`);
       $('board').focus();
     }
   } catch (error) {
@@ -294,7 +322,6 @@ async function validateDraft({ normalize = false, generate = false, apply = fals
     draftData = null;
     $('mnemonic').setAttribute('aria-invalid', 'true');
     status(errorMessage(error), true, 'draft-status');
-    renderLegal();
     board.disableMoveInput();
     const match = error.message.match(/(?:illegal )?move (\d+)/i);
     if (match) {
@@ -310,10 +337,8 @@ async function validateDraft({ normalize = false, generate = false, apply = fals
 }
 
 function append(move) {
-  if (!draftData || !['new', 'edit'].includes(mode)) return;
-  const source = mode === 'new' ? draftData : data;
-  const index = mode === 'new' ? source.moves.length : cursor;
-  $('mnemonic').value = `cmp1 ${[...source.moves.slice(0, index), move].join(' ')}`;
+  if (!draftData || mode !== 'edit') return;
+  $('mnemonic').value = `cmp1 ${[...data.moves.slice(0, cursor), move].join(' ')}`;
   selectedSquare = null;
   validateDraft();
 }
@@ -321,13 +346,11 @@ function append(move) {
 function input(event) {
   if (event.type === INPUT_EVENT_TYPE.moveInputCanceled) {
     selectedSquare = null;
-    renderLegal();
     board.removeMarkers();
     return;
   }
   if (event.type === INPUT_EVENT_TYPE.moveInputStarted) {
     selectedSquare = event.squareFrom;
-    renderLegal();
     for (const move of data.frames[cursor].legal.filter((move) => move.startsWith(selectedSquare))) {
       board.addMarker(MARKER_TYPE.frame, move.slice(2, 4));
     }
@@ -350,35 +373,81 @@ function input(event) {
   return false;
 }
 
-function openDialog(id) {
-  stop();
-  renderPosition();
-  $(id).showModal();
+function showCollection(visible) {
+  $('collection').hidden = !visible;
+  $('show-collection').setAttribute('aria-expanded', String(visible));
+  $('workbench').classList.toggle('collection-open', visible);
 }
 
-const saveSequence = bindCollection((sequence) => {
-  $('sequence-list').close();
-  startDraft('import', sequence, false);
-  validateDraft({ apply: true });
-}, () => data?.normalized, examples);
+async function exportEntries(entries) {
+  const id = ++request;
+  mode = 'loading';
+  stop();
+  renderMode();
+  try {
+    const results = await Promise.all(entries.map((entry) => run({ mnemonic: entry.sequence })));
+    if (id !== request) return;
+    exportData = results;
+    $('export-title').textContent = entries.length === 1 ? `Export · ${entries[0].name}` : `Export · ${entries.length} sequences`;
+    renderOutput();
+    $('panel-export').showModal();
+  } catch (error) {
+    if (id === request) status(errorMessage(error), true);
+  } finally {
+    if (id === request) { mode = null; renderPosition(); }
+  }
+}
 
+const collection = bindCollection({
+  open: (entry) => openEntry(entry),
+  edit: (entry) => openEntry(entry, 'edit'),
+  export: exportEntries,
+  delete: (entry) => {
+    ++request;
+    if (selectedEntry?.id === entry.id) {
+      stop();
+      selectedEntry = null;
+      data = null;
+      collection.select(null);
+      renderPosition();
+      showCollection(true);
+      status('Sequence deleted. Choose another or undo deletion.');
+    }
+  },
+  example: (name, sequence) => {
+    startDraft('import', sequence);
+    $('sequence-name').value = name;
+    validateDraft();
+  },
+}, examples);
+
+$('show-collection').onclick = () => showCollection($('collection').hidden);
+$('delete-sequence').onclick = () => {
+  const id = editTarget;
+  cancelDraft();
+  collection.remove(id);
+};
 $('import').onclick = () => startDraft('import');
 $('clear').onclick = () => startDraft('new');
-$('edit').onclick = () => startDraft('edit');
-$('cancel').onclick = cancelDraft;
-$('sequence-dialog').addEventListener('cancel', (event) => { event.preventDefault(); cancelDraft(); });
-$('sequence-dialog').addEventListener('close', () => { if (mode && mode !== 'edit') cancelDraft(); });
+$('cancel').onclick = $('cancel-new').onclick = cancelDraft;
+for (const id of ['sequence-dialog', 'new-dialog']) {
+  $(id).addEventListener('cancel', (event) => { event.preventDefault(); cancelDraft(); });
+}
 $('apply').onclick = () => validateDraft({ apply: true });
 $('check').onclick = () => validateDraft();
 $('normalize').onclick = () => validateDraft({ normalize: true });
-$('generator').onsubmit = (event) => { event.preventDefault(); validateDraft({ generate: true }); };
+$('generator').onsubmit = (event) => { event.preventDefault(); createDraft(true); };
+$('start-blank').onclick = () => createDraft(false);
+$('sequence-name').oninput = () => renderMode();
+document.addEventListener('edit-sequence', () => {
+  if (!mode && selectedEntry) startDraft('edit');
+});
 $('mnemonic').oninput = () => {
   ++request;
   draftData = null;
   $('mnemonic').removeAttribute('aria-invalid');
   status('Unapplied changes.', false, 'draft-status');
   board.disableMoveInput();
-  renderLegal();
 };
 $('import-file').onchange = async (event) => {
   const file = event.target.files[0];
@@ -395,18 +464,6 @@ $('import-file').onchange = async (event) => {
     if (id === request) status(errorMessage(error), true, 'draft-status');
   } finally { event.target.value = ''; }
 };
-$('undo').onclick = () => {
-  const previous = undo.pop();
-  if (!previous) return;
-  ++request;
-  stop();
-  data = previous.data;
-  cursor = previous.cursor;
-  renderPosition();
-  status('Undone.');
-};
-$('export').onclick = () => openDialog('panel-export');
-$('list').onclick = () => openDialog('sequence-list');
 $('flip').onclick = () => board.setOrientation(board.getOrientation() === 'w' ? 'b' : 'w');
 $('first').onclick = () => navigate(0);
 $('previous').onclick = () => navigate(cursor - 1);
@@ -449,13 +506,35 @@ $('download').onclick = () => {
   const url = URL.createObjectURL(new Blob([exportText() + '\n'], { type: 'text/plain' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = format === 'cmp' ? 'sequence.cmp' : `sequence.${format === 'pgn' ? 'pgn' : `${format}.txt`}`;
+  const name = exportData.length > 1 ? 'sequences' : 'sequence';
+  link.download = `${name}.${format === 'cmp' || format === 'pgn' ? format : `${format}.txt`}`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 $('privacy').textContent = browserMode ? 'Runs in your browser. Collection saved locally.'
   : 'Processed by your server. Collection saved locally.';
-$('retry').onclick = () => load(examples['Ruy López']);
+async function initialize() {
+  mode = 'loading';
+  renderMode();
+  status('Loading CMP…');
+  try {
+    const result = await run({ mnemonic: '' });
+    $('version').textContent = `cmp1 / cmp ${result.version}`;
+    $('retry').hidden = true;
+    mode = null;
+    renderPosition();
+    if (!mode && !selectedEntry) status('Select a sequence or create a new one.');
+  } catch (error) {
+    status(errorMessage(error), true);
+    $('retry').hidden = false;
+    mode = null;
+    renderPosition();
+  }
+}
+$('retry').onclick = initialize;
 bindShortcuts();
-renderMode();
-load(examples['Ruy López']);
+showCollection(!collection.first());
+renderPosition();
+initialize().then(() => {
+  if (!mode && !selectedEntry && collection.first()) openEntry(collection.first());
+});

@@ -18,18 +18,30 @@
           <span>Chess Mnemonic Protocol</span>
         </div>
         <nav aria-label="Main">
+          <button id="show-collection" aria-controls="collection" aria-expanded="true">Collection</button>
           <button id="show-shortcuts" type="button">? Keys</button>
           <a href="https://github.com/julesora/cmp">Source ↗</a>
         </nav>
       </header>
       <main id="workbench" class="workbench" aria-label="CMP workbench">
-        <nav class="board-actions" aria-label="Board actions">
-          <button id="import" aria-haspopup="dialog">Import</button>
-          <button id="export" aria-haspopup="dialog">Export</button>
-          <button id="clear" aria-haspopup="dialog">New</button>
-          <button id="edit" aria-controls="panel-sequence">Edit</button>
-          <button id="list" aria-haspopup="dialog">List <span id="sequence-count">0</span></button>
-        </nav>
+        <aside id="collection" aria-labelledby="list-title">
+          <div class="history-title"><h2 id="list-title">Collection</h2><span id="sequence-count">0</span></div>
+          <div class="actions">
+            <button id="clear" aria-haspopup="dialog">New</button>
+            <button id="import" aria-haspopup="dialog">Import</button>
+            <button id="export-collection" aria-haspopup="dialog">Export</button>
+            <button id="undo-delete" disabled>Undo delete</button>
+          </div>
+          <p id="list-empty">No saved sequences yet.</p>
+          <div id="sequences"></div>
+          <details><summary>Examples</summary><div id="examples"></div></details>
+          <p id="collection-status" class="hint" role="status">Saved in this browser.</p>
+        </aside>
+        <section id="viewer" aria-label="Sequence viewer">
+          <h2 id="viewer-title">Select a sequence</h2>
+          <button id="retry" hidden>Retry</button>
+          <p id="status" role="status" aria-live="polite">Connecting to CMP…</p>
+          <div id="viewer-content" hidden>
         <section class="board-column" aria-label="Board">
           <div class="board-title">
             <div class="position-meta">
@@ -47,12 +59,9 @@
             <output id="position">0 / 0</output>
           </div>
           <div class="playback-options">
-            <button id="undo" disabled>Undo</button>
             <label for="speed">Speed</label>
             <select id="speed"><option value="1600">0.5×</option><option value="800" selected>1×</option><option value="400">2×</option></select>
           </div>
-          <button id="retry" hidden>Retry</button>
-          <p id="status" role="status" aria-live="polite">Connecting to CMP…</p>
         </section>
         <aside class="tools-column" aria-label="Sequence and moves">
           <div id="editor-home"></div>
@@ -71,19 +80,29 @@
             <div id="moves" aria-label="Move history"></div>
           </section>
         </aside>
+          </div>
+        </section>
       </main>
       <footer>
         <span id="version">cmp1 / connecting</span
         ><span id="privacy">No saved history.</span>
       </footer>
     </div>
-    <dialog id="sequence-dialog" aria-labelledby="sequence-title">
-      <h2 id="sequence-title">New</h2>
+    <dialog id="new-dialog" aria-labelledby="new-title">
+      <h2 id="new-title">New sequence</h2>
       <form id="generator">
         <label for="random-count">Moves</label>
         <input id="random-count" type="number" min="1" max="256" value="24" required />
         <button id="generate" type="submit">Generate random</button>
       </form>
+      <p id="new-status" role="status"></p>
+      <div class="actions">
+        <button id="start-blank">Start blank</button>
+        <button id="cancel-new">Cancel</button>
+      </div>
+    </dialog>
+    <dialog id="sequence-dialog" aria-labelledby="sequence-title">
+      <h2 id="sequence-title">Import</h2>
       <div id="file-row">
         <label for="import-file">CMP / UCI file</label>
         <input id="import-file" type="file" accept=".txt,.uci,.cmp,text/plain" />
@@ -91,6 +110,8 @@
       <div id="dialog-editor"></div>
     </dialog>
     <section id="panel-sequence" aria-label="Edit sequence" hidden>
+      <label for="sequence-name">Name</label>
+      <input id="sequence-name" maxlength="120" />
       <label for="mnemonic">CMP / UCI sequence</label>
       <textarea id="mnemonic" rows="3" maxlength="4096" spellcheck="false" aria-describedby="draft-status"></textarea>
       <div id="validation-actions" class="actions">
@@ -101,10 +122,7 @@
       <div class="actions">
         <button id="apply" class="primary">Apply</button>
         <button id="cancel">Cancel</button>
-      </div>
-      <div id="panel-legal" class="legal-section" hidden>
-        <h2>Legal moves <span id="legal-count"></span></h2>
-        <div id="legal" aria-label="Legal moves"></div>
+        <button id="delete-sequence" hidden>Delete</button>
       </div>
     </section>
     <dialog id="panel-export" aria-labelledby="export-title">
@@ -157,21 +175,6 @@
         tabindex="0"
       ></pre>
       <span id="copy-status" role="status"></span>
-    </dialog>
-    <dialog id="sequence-list" aria-labelledby="list-title">
-      <form method="dialog" class="board-title">
-        <h2 id="list-title">Collection</h2>
-        <button>Close</button>
-      </form>
-      <p id="list-empty">No saved sequences yet.</p>
-      <div class="actions">
-        <button id="save-sequence">Save current</button>
-        <button id="clear-collection">Clear collection</button>
-      </div>
-      <div id="sequences"></div>
-      <h2>Examples</h2>
-      <div id="examples"></div>
-      <p id="collection-status" class="hint" role="status">Saved in this browser.</p>
     </dialog>
     <dialog id="shortcuts" aria-labelledby="shortcuts-title">
       <form method="dialog">

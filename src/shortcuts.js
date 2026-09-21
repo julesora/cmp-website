@@ -73,7 +73,7 @@ export function bindShortcuts() {
       if (event.key === '?') action = 'show-shortcuts';
       if (event.key === '/') {
         event.preventDefault();
-        if (!editing) control('edit').click();
+        if (!editing) document.dispatchEvent(new CustomEvent('edit-sequence'));
         else control('mnemonic').focus();
         return;
       }

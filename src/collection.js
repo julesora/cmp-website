@@ -5,12 +5,18 @@ try {
   const saved = JSON.parse(localStorage.getItem(key) || '[]');
   if (Array.isArray(saved)) entries = saved.filter((entry) =>
     typeof entry?.name === 'string' && typeof entry?.sequence === 'string' &&
-    entry.name.length <= 120 && entry.sequence.length <= 4096);
+    entry.name.length <= 120 && entry.sequence.length <= 4096)
+    .map((entry) => ({ ...entry, id: entry.id || crypto.randomUUID() }));
 } catch {
-  // The collection still works when storage is unavailable.
+  // Keep working if browser storage is unavailable.
 }
 
-export function bindCollection(open, current, examples) {
+export function bindCollection(actions, examples) {
+  let selected;
+  let locked = false;
+  const deleted = [];
+  const checked = new Set();
+
   function persist() {
     try {
       localStorage.setItem(key, JSON.stringify(entries));
@@ -21,57 +27,94 @@ export function bindCollection(open, current, examples) {
     render();
   }
 
-  function add(sequence) {
-    entries.push({ name: `Sequence ${entries.length + 1}`, sequence });
-    persist();
-  }
-
   function render() {
     $('sequence-count').textContent = entries.length;
     $('list-empty').hidden = entries.length > 0;
-    $('clear-collection').disabled = !entries.length;
-    $('sequences').replaceChildren(...entries.map((entry, index) => {
-      const row = document.createElement('div');
+    $('undo-delete').disabled = locked || !deleted.length;
+    $('sequences').replaceChildren(...entries.map((entry) => {
+      const row = document.createElement('article');
       row.className = 'collection-entry';
-      const name = document.createElement('input');
-      name.value = entry.name;
-      name.maxLength = 120;
-      name.setAttribute('aria-label', `Name of sequence ${index + 1}`);
-      name.onchange = () => {
-        entry.name = name.value.trim() || `Sequence ${index + 1}`;
-        persist();
-      };
+      row.dataset.id = entry.id;
+      const open = document.createElement('button');
+      open.className = 'sequence-open';
+      open.textContent = entry.name;
+      open.disabled = locked;
+      if (entry.id === selected) open.setAttribute('aria-current', 'true');
+      open.onclick = () => actions.open(entry);
       const preview = document.createElement('p');
-      const moves = entry.sequence.split(/\s+/).slice(1);
-      preview.textContent = `${moves.length} moves · ${moves.slice(0, 6).join(' ')}${moves.length > 6 ? ' …' : ''}`;
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      for (const [label, action] of [
-        ['Open', () => open(entry.sequence)],
-        ['Duplicate', () => add(entry.sequence)],
-        ['Remove', () => { entries.splice(index, 1); persist(); }],
-      ]) {
-        const button = document.createElement('button');
-        button.textContent = label;
-        button.onclick = action;
-        actions.append(button);
-      }
-      row.append(name, preview, actions);
+      const moves = entry.sequence.trim().split(/\s+/).slice(1);
+      preview.textContent = `${moves.length} moves · ${moves.slice(0, 5).join(' ')}${moves.length > 5 ? ' …' : ''}`;
+      const heading = document.createElement('div');
+      heading.className = 'entry-heading';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = checked.has(entry.id);
+      checkbox.disabled = locked;
+      checkbox.setAttribute('aria-label', `Export ${entry.name}`);
+      checkbox.onchange = () => {
+        if (checkbox.checked) checked.add(entry.id);
+        else checked.delete(entry.id);
+        renderExportLabel();
+      };
+      const edit = document.createElement('button');
+      edit.textContent = 'Edit';
+      edit.disabled = locked;
+      edit.onclick = () => actions.edit(entry);
+      heading.append(checkbox, open, edit);
+      row.append(heading, preview);
       return row;
     }));
+    renderExportLabel();
+    $('examples').querySelectorAll('button').forEach((button) => { button.disabled = locked; });
   }
 
-  $('save-sequence').onclick = () => {
-    const sequence = current();
-    if (sequence) add(sequence);
+  function renderExportLabel() {
+    const count = entries.filter((entry) => checked.has(entry.id)).length;
+    $('export-collection').textContent = count ? `Export (${count})` : 'Export all';
+    $('export-collection').disabled = locked || !entries.length;
+  }
+
+  $('export-collection').onclick = () => {
+    const selected = entries.filter((entry) => checked.has(entry.id));
+    actions.export(selected.length ? selected : entries);
   };
-  $('clear-collection').onclick = () => { entries = []; persist(); };
+
+  $('undo-delete').onclick = () => {
+    const item = deleted.pop();
+    if (!item) return;
+    entries.splice(item.index, 0, item.entry);
+    persist();
+  };
   for (const [name, sequence] of Object.entries(examples)) {
     const button = document.createElement('button');
     button.textContent = name;
-    button.onclick = () => open(sequence);
+    button.onclick = () => actions.example(name, sequence);
     $('examples').append(button);
   }
   render();
-  return add;
+  return {
+    first() { return entries[0]; },
+    remove(id) {
+      const index = entries.findIndex((entry) => entry.id === id);
+      if (index < 0) return;
+      const [entry] = entries.splice(index, 1);
+      deleted.push({ entry, index });
+      checked.delete(id);
+      actions.delete(entry);
+      persist();
+    },
+    save(id, name, sequence) {
+      let entry = entries.find((item) => item.id === id);
+      if (!entry) {
+        entry = { id: crypto.randomUUID() };
+        entries.push(entry);
+      }
+      entry.name = name.trim() || `Sequence ${entries.length}`;
+      entry.sequence = sequence;
+      persist();
+      return entry;
+    },
+    select(id) { selected = id; render(); },
+    lock(value) { locked = value; render(); },
+  };
 }
