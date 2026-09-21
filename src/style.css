@@ -805,3 +805,9 @@ summary {
     min-height: 44px;
   }
 }
+
+@media (max-width: 780px) {
+  #show-shortcuts {
+    display: none;
+  }
+}
