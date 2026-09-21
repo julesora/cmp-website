@@ -23,6 +23,7 @@ const examples = {
   invalid: 'cmp1 e2e5',
 };
 let data;
+const sequences = [];
 let cursor = 0;
 let format = 'san';
 let timer;
@@ -194,7 +195,11 @@ async function inspect(
       randomMoves === null ? { mnemonic: text } : { moves: randomMoves },
     );
     if (id !== request) return;
-    if (randomMoves !== null) $('mnemonic').value = result.normalized;
+    if (randomMoves !== null) {
+      $('mnemonic').value = result.normalized;
+      sequences.push(result.normalized);
+      renderSequences();
+    }
     data = result;
     ready = true;
     cursor = atEnd ? data.moves.length : 0;
@@ -254,6 +259,52 @@ function input(event) {
   }
   return false;
 }
+
+$('import').onclick = () => $('import-file').click();
+$('import-file').onchange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const id = request;
+  try {
+    if (file.size > 16384) throw new Error('Import a text sequence under 16 KB.');
+    const text = (await file.text()).trim();
+    if (id !== request) return;
+    const sequence = /^cmp1(?:\s|$)/i.test(text) ? text : `cmp1 ${text}`;
+    if (sequence.length > 4096) throw new Error('Sequence is too long.');
+    $('mnemonic').value = sequence;
+    inspect();
+  } catch (error) {
+    if (id === request) status(error.message, true);
+  } finally {
+    event.target.value = '';
+  }
+};
+function openDialog(id) {
+  stop();
+  renderPosition();
+  $(id).showModal();
+}
+
+function renderSequences() {
+  $('sequence-count').textContent = sequences.length;
+  $('list-empty').hidden = sequences.length > 0;
+  $('sequences').replaceChildren(
+    ...sequences.map((sequence, index) => {
+      const count = sequence.split(' ').length - 1;
+      const button = moveButton(`Sequence ${index + 1} · ${count} moves`, () => {
+        $('sequence-list').close();
+        $('mnemonic').value = sequence;
+        inspect(undefined, false);
+      });
+      button.title = sequence;
+      return button;
+    }),
+  );
+}
+
+$('export').onclick = () => openDialog('panel-export');
+$('edit').onclick = () => $('mnemonic').focus();
+$('list').onclick = () => openDialog('sequence-list');
 
 $('generator').onsubmit = (event) => {
   event.preventDefault();
@@ -342,7 +393,7 @@ $('download').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 $('privacy').textContent = browserMode
-  ? 'Runs in your browser. No saved history.'
-  : 'Processed by your server. No saved history.';
+  ? 'Runs in your browser. Collection lasts until reload.'
+  : 'Processed by your server. Collection lasts until reload.';
 bindShortcuts();
 inspect(undefined, false);

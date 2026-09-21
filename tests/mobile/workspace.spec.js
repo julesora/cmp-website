@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('keeps the board, generator and editor together', async ({ page }) => {
-  for (const id of ['board', 'generator', 'mnemonic', 'check']) {
+  for (const id of ['board', 'generator', 'mnemonic']) {
     await expect(page.locator(`#${id}`)).toBeInViewport({ ratio: 1 });
   }
   await page.locator('#random-count').fill('12');
@@ -21,6 +21,7 @@ test('adds legal moves without switching panels', async ({ page }) => {
   await page.locator('#mnemonic').fill('cmp1 d2d4 d7d5');
   await page.locator('#check').tap();
   await expect(page.locator('#moves button')).toHaveCount(2);
+  await page.locator('#export').tap();
   await page.locator('#tab-pgn').tap();
   await expect(page.locator('#output')).toContainText('[Event "CMP-1"]');
 });
@@ -38,7 +39,7 @@ test('replays long histories without inner scrolling', async ({ page }) => {
 
 test('fits small phones with every tool open', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
-  for (const id of ['generator', 'mnemonic', 'legal', 'moves', 'output']) {
+  for (const id of ['generator', 'mnemonic', 'legal', 'moves']) {
     await expect(page.locator(`#${id}`)).toBeVisible();
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

@@ -13,8 +13,10 @@ Website: https://julesora.github.io/cmp-website/
 Layout
 ------
 
-The board, generator and UCI editor share one workspace.
-Legal moves, history and export stay open beside or below the board.
+The board and moves are the main view. Generate or edit a sequence beside
+the board, or below it on phones. Import loads CMP or UCI text; Export copies or downloads it.
+New clears the board. Edit focuses the editor. List reopens generated
+sequences, kept until the page reloads or closes.
 
 Setup
 -----
@@ -37,7 +39,7 @@ Open the preview URL with /cmp-website/ at the end.
 
 This version runs CMP in your browser. The first load downloads Python
 (about 13 MB). Processing works offline while the page stays open.
-Nothing is saved by the app.
+Nothing is stored after the page closes.
 
 Server
 ------

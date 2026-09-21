@@ -19,6 +19,7 @@ test('replays, normalizes and exports a sequence', async ({ page }) => {
   await expect(page.locator('#status')).toContainText('Valid sequence');
   await page.locator('#normalize').click();
   await expect(page.locator('#mnemonic')).toHaveValue('cmp1 e2e4 e7e5');
+  await page.locator('#export').click();
   await page.getByRole('tab', { name: 'PGN' }).click();
   await expect(page.locator('#output')).toContainText('[Event "CMP-1"]');
   const download = page.waitForEvent('download');
@@ -121,6 +122,7 @@ test('chooses an underpromotion on the board', async ({ page }) => {
     .fill('cmp1 a2a4 h7h5 a4a5 h5h4 a5a6 h4h3 a6b7 h3g2');
   await page.locator('#check').click();
   await expect(page.locator('#status')).toContainText('8 legal moves');
+  await page.locator('#board').evaluate((element) => element.scrollIntoView({ block: 'center' }));
   const bounds = await page.locator('#board').boundingBox();
   await page.mouse.click(
     bounds.x + (bounds.width * 1.5) / 8,
@@ -206,6 +208,7 @@ test('preserves native controls and offers shortcut settings', async ({
   await page.locator('#random-count').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#position')).toHaveText('0 / 5');
+  await page.locator('#export').click();
   await page.locator('#tab-san').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#tab-pgn')).toHaveAttribute(
@@ -213,6 +216,7 @@ test('preserves native controls and offers shortcut settings', async ({
     'true',
   );
   await expect(page.locator('#position')).toHaveText('0 / 5');
+  await page.keyboard.press('Escape');
   await page.locator('h1').click();
   await page.keyboard.press('?');
   await expect(page.locator('#shortcuts')).toBeVisible();
@@ -274,7 +278,7 @@ test('shows long move lists without inner scrolling', async ({ page }) => {
   await page.locator('#check').click();
   await expect(page.locator('#status')).toContainText('64 legal moves');
   await expect(page.locator('#moves button')).toHaveCount(64);
-  for (const id of ['moves', 'legal', 'output']) {
+  for (const id of ['moves', 'legal']) {
     expect(
       await page.locator(`#${id}`).evaluate((element) => {
         return element.scrollHeight <= element.clientHeight;
@@ -294,7 +298,7 @@ test('keeps all tools open across screen sizes', async ({ page }) => {
     { width: 1280, height: 900 },
   ]) {
     await page.setViewportSize(viewport);
-    for (const id of ['board', 'generator', 'mnemonic', 'legal', 'moves', 'output']) {
+    for (const id of ['board', 'generator', 'mnemonic', 'legal', 'moves']) {
       await expect(page.locator(`#${id}`)).toBeVisible();
     }
     await expect(page.getByRole('tablist', { name: 'Workspace', exact: true })).toHaveCount(0);
@@ -314,4 +318,37 @@ test('pairs White and Black moves and resets numbering for new games', async ({
   await expect(page.locator('#status')).toContainText('Valid sequence');
   await expect(page.locator('.game-label')).toHaveText(['Game 1', 'Game 2']);
   await expect(page.locator('.move-number')).toHaveText(['1.', '2.', '1.']);
+});
+
+test('imports text and starts a new board from the toolbar', async ({ page }) => {
+  await page.locator('#import-file').setInputFiles({
+    name: 'moves.uci', mimeType: 'text/plain', buffer: Buffer.from('e2e4 e7e5'),
+  });
+  await expect(page.locator('#mnemonic')).toHaveValue('cmp1 e2e4 e7e5');
+  await expect(page.locator('#position')).toHaveText('2 / 2');
+  await page.locator('#edit').click();
+  await expect(page.locator('#mnemonic')).toBeFocused();
+  await page.locator('#clear').click();
+  await expect(page.locator('#position')).toHaveText('0 / 0');
+  await expect(page.locator('#legal button')).toHaveCount(20);
+});
+
+test('reopens generated sequences from the collection', async ({ page }) => {
+  await page.locator('#list').click();
+  await expect(page.locator('#list-empty')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.locator('#random-count').fill('4');
+  await page.locator('#generate').click();
+  await expect(page.locator('#sequence-count')).toHaveText('1');
+  const first = await page.locator('#mnemonic').inputValue();
+  await page.locator('#random-count').fill('8');
+  await page.locator('#generate').click();
+  await expect(page.locator('#sequence-count')).toHaveText('2');
+  await page.locator('#clear').click();
+  await page.locator('#list').click();
+  await page.getByRole('button', { name: 'Sequence 1 · 4 moves' }).click();
+  await expect(page.locator('#mnemonic')).toHaveValue(first);
+  await expect(page.locator('#position')).toHaveText('0 / 4');
+  await page.reload();
+  await expect(page.locator('#sequence-count')).toHaveText('0');
 });

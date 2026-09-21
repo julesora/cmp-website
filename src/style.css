@@ -112,10 +112,6 @@ nav {
   min-width: 0;
   padding: 20px;
 }
-.board-column {
-  position: sticky;
-  top: 0;
-}
 .board-title {
   justify-content: space-between;
   margin-bottom: 12px;
@@ -137,7 +133,7 @@ nav {
   font-size: 12px;
 }
 #board {
-  max-width: min(100%, calc(100svh - 170px));
+  max-width: min(100%, calc(100svh - 240px));
   margin: 0 auto;
   width: 100%;
   aspect-ratio: 1;
@@ -248,11 +244,6 @@ button.primary:hover:not(:disabled),
 .examples select {
   min-width: 0;
   flex: 1;
-}
-.notation {
-  margin-top: 4px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
 }
 .output-head {
   justify-content: space-between;
@@ -378,7 +369,6 @@ kbd {
   min-height: 100%;
 }
 #panel-sequence,
-.notation,
 .legal-section,
 .history {
   padding: 16px;
@@ -474,7 +464,6 @@ kbd {
     border: 0;
   }
   #panel-sequence,
-  .notation,
   .legal-section,
   .history {
     padding: 12px;
@@ -504,4 +493,65 @@ kbd {
   .key-list dd {
     margin-bottom: 8px;
   }
+}
+
+.board-actions {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  background: #fbfbf6;
+  border-bottom: 1px solid var(--line);
+}
+.board-actions button {
+  min-height: 44px;
+}
+#panel-sequence {
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+#panel-export {
+  width: 560px;
+  padding: 20px;
+}
+#panel-export pre {
+  min-height: 0;
+}
+#panel-legal,
+#mnemonic {
+  scroll-margin-top: 80px;
+}
+.history {
+  border-top: 0;
+}
+@media (max-width: 780px) {
+  .board-actions {
+    gap: 5px;
+    padding: 8px;
+  }
+  .board-actions button {
+    padding: 5px 2px;
+  }
+  #panel-sequence {
+    padding: 12px;
+  }
+}
+
+#sequence-list {
+  width: 440px;
+}
+#sequences {
+  display: grid;
+  gap: 8px;
+}
+#sequences button {
+  text-align: left;
+  min-height: 44px;
+}
+#sequence-count {
+  font-weight: normal;
 }

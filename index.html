@@ -23,6 +23,14 @@
         </nav>
       </header>
       <main id="workbench" class="workbench" aria-label="CMP workbench">
+        <nav class="board-actions" aria-label="Board actions">
+          <button id="import" title="Import a CMP or UCI text file">Import</button>
+          <button id="export" aria-haspopup="dialog">Export</button>
+          <button id="clear" title="Start an empty sequence">New</button>
+          <button id="edit" aria-controls="panel-sequence">Edit</button>
+          <button id="list" aria-haspopup="dialog">List <span id="sequence-count">0</span></button>
+          <input id="import-file" type="file" accept=".txt,.uci,text/plain" hidden />
+        </nav>
         <section class="board-column" aria-label="Board">
           <div class="board-title">
             <div class="position-meta">
@@ -41,7 +49,7 @@
           </div>
           <p id="status" role="status" aria-live="polite">Connecting to CMP…</p>
         </section>
-        <section class="tools-column" aria-label="Workspace tools">
+        <aside class="tools-column" aria-label="Sequence and moves">
           <section id="panel-sequence" aria-label="Sequence">
             <form id="generator">
               <label for="random-count">Moves</label>
@@ -74,7 +82,6 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
             <div class="actions">
               <button id="check">Check sequence</button>
               <button id="normalize" disabled>Normalize</button>
-              <button id="clear">Clear</button>
             </div>
             <div class="tools">
               <div class="examples">
@@ -91,60 +98,7 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
               </div>
             </div>
           </section>
-          <section
-            id="panel-export"
-            class="notation"
-            aria-label="Notation"
-          >
-            <div class="output-head">
-              <div class="tabs" role="tablist" aria-label="Output format">
-                <button
-                  id="tab-uci"
-                  role="tab"
-                  aria-selected="false"
-                  aria-controls="output"
-                  data-format="uci"
-                  tabindex="-1"
-                >
-                  UCI
-                </button>
-                <button
-                  id="tab-san"
-                  role="tab"
-                  aria-selected="true"
-                  aria-controls="output"
-                  data-format="san"
-                >
-                  SAN
-                </button>
-                <button
-                  id="tab-pgn"
-                  role="tab"
-                  aria-selected="false"
-                  aria-controls="output"
-                  data-format="pgn"
-                  tabindex="-1"
-                >
-                  PGN
-                </button>
-              </div>
-              <div class="actions">
-                <button id="copy" disabled>Copy</button>
-                <button id="download" disabled>Download</button>
-              </div>
-            </div>
-            <pre
-              id="output"
-              role="tabpanel"
-              aria-labelledby="tab-san"
-              tabindex="0"
-            ></pre>
-            <span id="copy-status" role="status"></span>
-          </section>
-          <div id="panel-legal" class="legal-section">
-            <h2>Legal moves <span id="legal-count"></span></h2>
-            <div id="legal" aria-label="Legal moves"></div>
-          </div>
+
           <section
             id="panel-moves"
             class="history"
@@ -159,13 +113,76 @@ cmp1 e2e4 e7e5 g1f3 b8c6 f1b5</textarea>
             </div>
             <div id="moves" aria-label="Move history"></div>
           </section>
-        </section>
+          <div id="panel-legal" class="legal-section">
+            <h2>Legal moves <span id="legal-count"></span></h2>
+            <div id="legal" aria-label="Legal moves"></div>
+          </div>
+        </aside>
       </main>
       <footer>
         <span id="version">cmp1 / connecting</span
         ><span id="privacy">No saved history.</span>
       </footer>
     </div>
+    <dialog id="panel-export" aria-labelledby="export-title">
+      <form method="dialog" class="board-title">
+        <h2 id="export-title">Export</h2>
+        <button>Close</button>
+      </form>
+      <div class="output-head">
+        <div class="tabs" role="tablist" aria-label="Output format">
+          <button
+            id="tab-uci"
+            role="tab"
+            aria-selected="false"
+            aria-controls="output"
+            data-format="uci"
+            tabindex="-1"
+          >
+            UCI
+          </button>
+          <button
+            id="tab-san"
+            role="tab"
+            aria-selected="true"
+            aria-controls="output"
+            data-format="san"
+          >
+            SAN
+          </button>
+          <button
+            id="tab-pgn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="output"
+            data-format="pgn"
+            tabindex="-1"
+          >
+            PGN
+          </button>
+        </div>
+        <div class="actions">
+          <button id="copy" disabled>Copy</button>
+          <button id="download" disabled>Download</button>
+        </div>
+      </div>
+      <pre
+        id="output"
+        role="tabpanel"
+        aria-labelledby="tab-san"
+        tabindex="0"
+      ></pre>
+      <span id="copy-status" role="status"></span>
+    </dialog>
+    <dialog id="sequence-list" aria-labelledby="list-title">
+      <form method="dialog" class="board-title">
+        <h2 id="list-title">Generated sequences</h2>
+        <button>Close</button>
+      </form>
+      <p id="list-empty">No generated sequences yet.</p>
+      <div id="sequences"></div>
+      <p class="hint">Kept until you reload or close this page.</p>
+    </dialog>
     <dialog id="shortcuts" aria-labelledby="shortcuts-title">
       <form method="dialog">
         <div class="board-title">
