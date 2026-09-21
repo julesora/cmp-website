@@ -626,9 +626,6 @@ summary {
 .workbench {
   display: block;
 }
-.workbench.collection-open {
-  display: grid;
-}
 #viewer-content {
   display: block;
 }
@@ -655,9 +652,6 @@ summary {
   flex-shrink: 0;
 }
 @media (max-width: 780px) {
-  .workbench.collection-open {
-    display: block;
-  }
   header {
     flex-wrap: wrap;
   }
@@ -670,4 +664,44 @@ summary {
 #draft-status:empty,
 #collection-status:empty {
   display: none;
+}
+
+.workbench {
+  display: grid;
+}
+#mobile-toolbar,
+#switch {
+  display: none;
+}
+#switch-dialog {
+  width: 420px;
+}
+#switch-dialog > form {
+  display: flex;
+  justify-content: flex-end;
+}
+@media (max-width: 780px) {
+  .workbench {
+    display: block;
+  }
+  #mobile-toolbar {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 8px 0;
+    background: #f5f4ee;
+  }
+  #collection-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+  }
+  #collection-actions button {
+    padding: 5px 3px;
+  }
+  #switch {
+    display: block;
+  }
 }

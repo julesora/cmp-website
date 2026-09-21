@@ -1,15 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('cmp-sequences', '[]'));
   await page.goto('./');
   await expect(page.locator('#status')).toContainText('Select a sequence');
 });
 
-test('places the collection above the viewer and fits the phone', async ({ page }) => {
-  await expect(page.locator('#collection')).toBeInViewport();
-  const collection = await page.locator('#collection').boundingBox();
-  const viewer = await page.locator('#viewer').boundingBox();
-  expect(collection.y).toBeLessThan(viewer.y);
+test('shows a mobile action bar and opens the list with Switch', async ({ page }) => {
+  await expect(page.locator('#collection')).not.toBeVisible();
+  await expect(page.locator('#mobile-toolbar button')).toHaveText(['New', 'Import', 'Export', 'Switch']);
+  await page.locator('#switch').tap();
+  await expect(page.locator('#collection')).toBeVisible();
+  await page.locator('#switch-dialog').getByRole('button', { name: 'Close', exact: true }).tap();
+  await expect(page.locator('#collection')).not.toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -21,7 +24,7 @@ test('generates, edits, saves and reopens a sequence', async ({ page }) => {
   await expect(page.locator('#position')).toHaveText('0 / 8');
   await page.locator('#sequence-name').fill('Phone test');
   await page.locator('#apply').tap();
-  await page.locator('#show-collection').tap();
+  await page.locator('#switch').tap();
   await page.locator('.sequence-open').tap();
   await expect(page.locator('#panel-sequence')).not.toBeVisible();
   await expect(page.locator('#viewer-title')).toHaveText('Phone test');
@@ -37,7 +40,7 @@ test('cancels a blank draft and deletes a sequence', async ({ page }) => {
   await page.locator('#import').tap();
   await page.locator('#mnemonic').fill('e2e4');
   await page.locator('#apply').tap();
-  await page.locator('#show-collection').tap();
+  await page.locator('#switch').tap();
   await page.locator('.collection-entry').getByRole('button', { name: 'Edit', exact: true }).tap();
   await page.locator('#delete-sequence').tap();
   await expect(page.locator('#viewer-content')).not.toBeVisible();
@@ -50,7 +53,6 @@ test('fits import and export on small phones', async ({ page }) => {
   await page.locator('#mnemonic').fill('e2e4 e7e5');
   await page.locator('#apply').tap();
   await expect(page.locator('#position')).toHaveText('0 / 2');
-  await page.locator('#show-collection').tap();
   await page.locator('#export-collection').tap();
   await page.locator('#tab-pgn').tap();
   await expect(page.locator('#output')).toContainText('[Event "CMP-1"]');

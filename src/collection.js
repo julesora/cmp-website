@@ -1,8 +1,14 @@
 const key = 'cmp-sequences';
 const $ = (id) => document.getElementById(id);
-let entries = [];
+let entries = [
+  { name: 'Ruy López', sequence: 'cmp1 e2e4 e7e5 g1f3 b8c6 f1b5' },
+  { name: 'Queen’s Gambit', sequence: 'cmp1 d2d4 d7d5 c2c4 e7e6 b1c3 g8f6' },
+  { name: 'Sicilian', sequence: 'cmp1 e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4' },
+].map((entry) => ({ ...entry, id: crypto.randomUUID() }));
 try {
-  const saved = JSON.parse(localStorage.getItem(key) || '[]');
+  const stored = localStorage.getItem(key);
+  if (stored === null) localStorage.setItem(key, JSON.stringify(entries));
+  const saved = stored === null ? entries : JSON.parse(stored);
   if (Array.isArray(saved)) entries = saved.filter((entry) =>
     typeof entry?.name === 'string' && typeof entry?.sequence === 'string' &&
     entry.name.length <= 120 && entry.sequence.length <= 4096)

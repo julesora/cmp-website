@@ -13,9 +13,12 @@ Website: https://julesora.github.io/cmp-website/
 Layout
 ------
 
-The board and moves are the main view. Open Collection to choose or manage
-sequences. Selecting an entry opens it for viewing and closes Collection.
-Moves sit below the board.
+The collection stays beside the board on desktop. On phones, New, Import,
+Export and Switch sit above the board; Switch opens the sequence list.
+Moves sit below the board. Selecting a sequence opens it for viewing.
+
+New visitors start with Ruy López, Queen’s Gambit and Sicilian sequences.
+Existing collections are kept, including empty ones.
 
 * New: generate or start blank, then edit. Save adds the draft to the collection.
 * Import: paste text or choose a CMP/UCI file. Check, normalize, then Import.
@@ -105,6 +108,7 @@ Files
 * src/main.js: interface and board controls
 * src/client.js: server and browser requests
 * src/collection.js: saved sequences
+* src/workspace.js: desktop and phone layout
 * src/shortcuts.js: keyboard controls
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files

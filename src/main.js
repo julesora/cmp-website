@@ -13,6 +13,7 @@ import './style.css';
 import { browserMode, run } from './client.js';
 import { bindShortcuts } from './shortcuts.js';
 import { bindCollection } from './collection.js';
+import { bindWorkspace } from './workspace.js';
 
 const $ = (id) => document.getElementById(id);
 let data;
@@ -83,7 +84,7 @@ function renderOutput() {
 
 function renderMode() {
   const editing = mode === 'edit' || mode === 'import';
-  $('show-collection').disabled = Boolean(mode);
+  $('switch').disabled = Boolean(mode);
   $('delete-sequence').hidden = mode !== 'edit' || !editTarget;
   if (mode === 'loading') {
     for (const id of ['first', 'previous', 'next', 'last', 'play']) $(id).disabled = true;
@@ -199,7 +200,7 @@ async function openEntry(entry, action = 'view') {
       selectedEntry = entry;
       collection.select(entry.id);
       if (action === 'edit') startDraft('edit');
-      else { showCollection(false); $('viewer').scrollIntoView({ block: 'start' }); }
+      else { workspace.close(); $('viewer').scrollIntoView({ block: 'start' }); }
     }
     status('');
   } catch (error) {
@@ -226,7 +227,7 @@ function startDraft(nextMode, text = '') {
   $(parent).append($('panel-sequence'));
   $('apply').textContent = nextMode === 'import' ? 'Import' : 'Save';
   renderPosition();
-  if (nextMode === 'edit') showCollection(false);
+  if (nextMode === 'edit') workspace.close();
   if (nextMode === 'import') $('sequence-dialog').showModal();
   if (nextMode === 'new') {
     status('', false, 'new-status');
@@ -248,8 +249,7 @@ function cancelDraft() {
   $('new-dialog').close();
   renderPosition();
   status(selectedEntry ? '' : 'Select a sequence or create a new one.');
-  if (!data) showCollection(true);
-  $('show-collection').focus();
+  $('clear').focus();
 }
 
 async function createDraft(generate) {
@@ -259,7 +259,7 @@ async function createDraft(generate) {
     const result = await run(generate ? { moves: Number($('random-count').value) } : { mnemonic: '' });
     if (id !== request || mode !== 'new') return;
     mode = 'edit';
-    showCollection(false);
+    workspace.close();
     data = draftData = result;
     cursor = 0;
     editTarget = null;
@@ -303,7 +303,7 @@ async function validateDraft({ normalize = false, apply = false } = {}) {
       selectedSquare = null;
       $('sequence-dialog').close();
       collection.select(selectedEntry.id);
-      showCollection(false);
+      workspace.close();
       renderPosition();
       status('');
       $('board').focus();
@@ -364,12 +364,6 @@ function input(event) {
   return false;
 }
 
-function showCollection(visible) {
-  $('collection').hidden = !visible;
-  $('show-collection').setAttribute('aria-expanded', String(visible));
-  $('workbench').classList.toggle('collection-open', visible);
-}
-
 async function exportEntries(entries) {
   const id = ++request;
   mode = 'loading';
@@ -401,13 +395,11 @@ const collection = bindCollection({
       data = null;
       collection.select(null);
       renderPosition();
-      showCollection(true);
       status('Deleted.');
     }
   },
 });
 
-$('show-collection').onclick = () => showCollection($('collection').hidden);
 $('delete-sequence').onclick = () => {
   const id = editTarget;
   cancelDraft();
@@ -518,8 +510,8 @@ async function initialize() {
   }
 }
 $('retry').onclick = initialize;
+const workspace = bindWorkspace();
 bindShortcuts();
-showCollection(!collection.first());
 renderPosition();
 initialize().then(() => {
   if (!mode && !selectedEntry && collection.first()) openEntry(collection.first());

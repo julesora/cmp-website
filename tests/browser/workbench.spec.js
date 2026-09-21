@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const entry = (page, name) => page.locator('.collection-entry').filter({ has: page.getByRole('button', { name, exact: true, includeHidden: true }) });
 
 async function showCollection(page) {
-  if (await page.locator('#collection').isHidden()) await page.locator('#show-collection').click();
+  await expect(page.locator('#collection')).toBeVisible();
 }
 
 async function importSequence(page, name, text) {
@@ -28,6 +28,12 @@ async function newDraft(page, count = null) {
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('test-seeded')) {
+      localStorage.setItem('cmp-sequences', '[]');
+      sessionStorage.setItem('test-seeded', '1');
+    }
+  });
   await page.goto('./');
   await expect(page.locator('#status')).toContainText('Select a sequence');
 });
@@ -209,7 +215,7 @@ test('ignores generation after New is cancelled', async ({ page }) => {
 test('exports a batch and keeps moves below the board', async ({ page }) => {
   await importSequence(page, 'One', 'e2e4');
   await importSequence(page, 'Two', 'd2d4');
-  await expect(page.locator('#collection')).not.toBeVisible();
+  await expect(page.locator('#collection')).toBeVisible();
   const board = await page.locator('#board').boundingBox();
   const moves = await page.locator('#moves').boundingBox();
   expect(moves.y).toBeGreaterThan(board.y + board.height);
@@ -219,4 +225,20 @@ test('exports a batch and keeps moves below the board', async ({ page }) => {
   const download = page.waitForEvent('download');
   await page.locator('#download').click();
   expect((await download).suggestedFilename()).toBe('sequences.cmp');
+});
+
+test('seeds defaults once and preserves an intentionally empty collection', async ({ page }) => {
+  await page.evaluate(() => localStorage.removeItem('cmp-sequences'));
+  await page.reload();
+  await expect(page.locator('#viewer-title')).toHaveText('Ruy López');
+  await expect(page.locator('.sequence-open')).toHaveText(['Ruy López', 'Queen’s Gambit', 'Sicilian']);
+  for (const name of ['Queen’s Gambit', 'Sicilian', 'Ruy López']) {
+    await page.getByRole('button', { name, exact: true }).click();
+    await expect(page.locator('#viewer-title')).toHaveText(name);
+    await expect(page.locator('#status')).toBeEmpty();
+  }
+  await page.evaluate(() => localStorage.setItem('cmp-sequences', '[]'));
+  await page.reload();
+  await expect(page.locator('#list-empty')).toBeVisible();
+  await expect(page.locator('.collection-entry')).toHaveCount(0);
 });
