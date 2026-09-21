@@ -66,6 +66,7 @@ export function bindShortcuts() {
       if (event.key === '?') action = 'show-shortcuts';
       if (event.key === '/') {
         event.preventDefault();
+        document.dispatchEvent(new CustomEvent('show-sequence'));
         control('mnemonic').focus();
         return;
       }

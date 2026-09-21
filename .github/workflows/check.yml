@@ -25,10 +25,11 @@ jobs:
       - run: .venv/bin/pip install -r requirements-dev.txt
       - run: npm ci
       - run: npm run test:api
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm test
       - run: npm run build:pages
       - run: npm run test:pages
+      - run: npm run test:mobile
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

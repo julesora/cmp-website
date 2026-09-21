@@ -365,38 +365,6 @@ kbd {
   font-size: 11px;
   margin-bottom: 0;
 }
-@media (max-width: 780px) {
-  .page {
-    padding: 16px;
-  }
-  .brand {
-    display: block;
-  }
-  .brand > span {
-    display: none;
-  }
-  nav {
-    gap: 14px;
-  }
-  .workbench {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .board-column {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .board-column,
-  .editor-column {
-    padding: 16px;
-  }
-  .history {
-    padding: 16px;
-  }
-  footer {
-    flex-direction: column;
-    gap: 4px;
-  }
-}
 @media (max-width: 360px) {
   .page {
     padding: 10px;
@@ -415,5 +383,111 @@ kbd {
   }
   .key-list dd {
     margin-bottom: 8px;
+  }
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 780px) {
+  .brand > span {
+    display: none;
+  }
+  nav {
+    gap: 14px;
+  }
+  footer {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .page {
+    padding: 10px;
+  }
+  header {
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: 30px;
+  }
+  .workbench {
+    display: block;
+  }
+  .board-column {
+    position: sticky;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    top: 0;
+    z-index: 2;
+    padding: 10px 12px 0;
+    background: #fbfbf6;
+  }
+  .board-title {
+    margin-bottom: 6px;
+  }
+  #board {
+    max-width: 38svh;
+    margin: 0 auto;
+  }
+  button {
+    min-height: 44px;
+  }
+  .board-title button {
+    min-height: 36px;
+  }
+  .playback {
+    margin-top: 8px;
+    gap: 6px;
+  }
+  .playback button {
+    min-width: 42px;
+  }
+  #status {
+    margin: 6px 0;
+    font-size: 11px;
+    min-height: 18px;
+  }
+  #mobile-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  #mobile-tabs button {
+    font-size: 12px;
+    padding: 5px 3px;
+  }
+  #mobile-tabs [aria-selected='true'] {
+    background: var(--green);
+    color: white;
+  }
+  .editor-column {
+    display: contents;
+  }
+  [data-panel] {
+    padding: 14px 12px;
+    margin: 0;
+    border: 0;
+  }
+  .tools {
+    margin-top: 16px;
+  }
+  #random-count,
+  .tools select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  #legal {
+    grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+  }
+  footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (max-width: 780px) and (max-height: 500px) {
+  .board-column {
+    position: static;
   }
 }

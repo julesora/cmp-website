@@ -8,6 +8,8 @@ Website: https://julesora.github.io/cmp-website/
 
 ![CMP workbench with move editor, notation and chessboard](docs/preview.png)
 
+[Phone preview](docs/mobile.png)
+
 Setup
 -----
 
@@ -50,7 +52,7 @@ Test
 
 Install the test browser once:
 
-    npx playwright install chromium
+    npx playwright install chromium webkit
 
 Test the API and server interface:
 
@@ -61,6 +63,7 @@ Build and test the browser version:
 
     npm run build:pages
     npm run test:pages
+    npm run test:mobile
 
 Keys
 ----
@@ -85,6 +88,7 @@ Files
 * src/main.js: interface and board controls
 * src/client.js: server and browser requests
 * src/shortcuts.js: keyboard controls
+* src/workspace.js: phone tabs
 * src/worker.js: Python browser worker
 * scripts/browser.py: browser runtime files
 * tests/: API and browser tests
